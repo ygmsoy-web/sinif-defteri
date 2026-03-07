@@ -1,4 +1,4 @@
-const CACHE = 'sinif-defteri-v1';
+const CACHE = 'sinif-defteri-v2';
 const ASSETS = [
   '/sinif-defteri/sinif_defteri.html',
   'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'
