@@ -11,13 +11,13 @@
   "lang": "tr",
   "icons": [
     {
-      "src": "https://via.placeholder.com/192x192/3b82f6/ffffff?text=SD",
+      "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://via.placeholder.com/512x512/3b82f6/ffffff?text=SD",
+      "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
