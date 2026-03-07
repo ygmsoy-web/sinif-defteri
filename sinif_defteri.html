@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f1923">
+<title>Sınıf Defteri</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f1923;color:#e2e8f0;min-height:100vh;overscroll-behavior:none}
+  button{cursor:pointer;font-family:inherit}
+
+  /* TOP BAR */
+  .topbar{background:#111827;padding:14px 16px;display:flex;align-items:center;gap:12;position:sticky;top:0;z-index:100;border-bottom:1px solid #243044}
+  .topbar-back{background:#1e293b;border:1px solid #334155;color:#e2e8f0;border-radius:10px;padding:7px 14px;font-size:18px;font-weight:700}
+  .topbar-title{font-size:16px;font-weight:800;color:#e2e8f0}
+  .topbar-sub{font-size:11px;color:#64748b;margin-top:1px}
+
+  /* HOME */
+  .page{padding:16px}
+  .btn-dashed{width:100%;padding:16px;border:2px dashed #3b82f6;border-radius:14px;background:transparent;color:#3b82f6;font-size:15px;font-weight:800;margin-bottom:20px}
+  .empty-state{text-align:center;padding:60px 0;color:#64748b}
+  .empty-icon{font-size:52px}
+  .class-card{background:#1a2535;border-radius:14px;padding:16px;margin-bottom:10px;border:1px solid #243044;display:flex;align-items:center;justify-content:space-between}
+  .class-name{font-weight:800;font-size:17px;color:#e2e8f0}
+  .class-meta{font-size:12px;color:#64748b;margin-top:3px}
+  .class-arrow{color:#3b82f6;font-size:22px;font-weight:700}
+  .btn-del{background:#2d0a0a;border:none;border-radius:8px;color:#ef4444;padding:7px 11px;font-size:14px}
+
+  /* TOOLBAR */
+  .toolbar{display:flex;gap:6px;padding:10px 12px;flex-wrap:wrap}
+  .toolbar button{flex:1;padding:10px 4px;border:none;border-radius:10px;font-size:12px;font-weight:800;min-width:60px}
+
+  /* FORM */
+  .form-page{padding:20px}
+  .field-label{display:block;font-size:12px;font-weight:700;color:#64748b;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+  .field-input{width:100%;background:#0f1923;border:1.5px solid #243044;border-radius:10px;padding:12px 14px;font-size:15px;color:#e2e8f0;outline:none;margin-bottom:14px}
+  .field-input:focus{border-color:#3b82f6}
+  .btn-primary{width:100%;padding:14px;border:none;border-radius:12px;background:#3b82f6;color:white;font-size:16px;font-weight:800;margin-bottom:12px}
+  .btn-secondary{width:100%;padding:13px;border:1.5px solid #243044;border-radius:12px;background:transparent;color:#e2e8f0;font-size:15px;font-weight:700}
+
+  /* EXCEL BTN */
+  .excel-label{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px;border:2px dashed #16a34a;border-radius:12px;background:#052e16;color:#22c55e;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:8px}
+  .excel-hint{text-align:center;font-size:11px;color:#64748b;margin-bottom:16px}
+  .divider{height:1px;background:#243044;margin-bottom:16px}
+  .section-label{font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
+
+  /* STUDENT LIST IN FORM */
+  .student-list{margin-top:20px;background:#1a2535;border-radius:14px;overflow:hidden;border:1px solid #243044}
+  .student-list-header{padding:10px 14px;border-bottom:1px solid #243044;font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase}
+  .student-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid #243044}
+  .student-badge{background:#1e3a5f;color:#60a5fa;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:800}
+  .student-row-name{font-size:13px;font-weight:600;color:#e2e8f0}
+  .btn-remove{background:#2d0a0a;border:none;border-radius:6px;color:#ef4444;padding:4px 10px;font-size:13px}
+
+  /* TABLE */
+  .table-wrap{padding:0 12px 100px;overflow-x:auto}
+  table{width:100%;border-collapse:collapse;background:#1a2535;border-radius:14px;overflow:hidden;border:1px solid #243044}
+  thead tr{background:#111827}
+  th{padding:10px 4px;font-size:11px;font-weight:700;color:#94a3b8;text-align:center;border-bottom:1px solid #243044}
+  th.left{text-align:left;padding-left:10px}
+  td{padding:6px 3px;vertical-align:middle;text-align:center;border-bottom:1px solid #243044}
+  td.left{text-align:left;padding-left:6px}
+  tr.even{background:#1a2535}
+  tr.odd{background:#151f2e}
+
+  /* SCORE CELL */
+  .score-cell{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .score-val{font-weight:800;font-size:16px;min-width:30px;text-align:center}
+  .score-btns{display:flex;gap:4px}
+  .btn-plus{width:36px;height:36px;border:none;border-radius:8px;background:#052e16;color:#22c55e;font-size:22px;font-weight:900}
+  .btn-minus{width:36px;height:36px;border:none;border-radius:8px;background:#2d0a0a;color:#ef4444;font-size:22px;font-weight:900}
+
+  /* DERS CELL */
+  .ders-vals{display:flex;gap:8px;margin-bottom:2px}
+  .ders-pos{font-weight:800;font-size:14px;color:#22c55e;min-width:26px;text-align:center}
+  .ders-neg{font-weight:800;font-size:14px;color:#ef4444;min-width:26px;text-align:center}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#1e293b;color:#e2e8f0;padding:11px 24px;border-radius:24px;font-size:13px;font-weight:600;z-index:9999;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.5);border:1px solid #334155;pointer-events:none}
+  .hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- HOME PAGE -->
+<div id="page-home">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">📚 Sınıf Defteri</div>
+      <div class="topbar-sub">Katılım takip sistemi</div>
+    </div>
+  </div>
+  <div class="page">
+    <button class="btn-dashed" onclick="showPage('page-addclass')">+ Yeni Sınıf Oluştur</button>
+    <div id="class-list">
+      <div class="empty-state"><div class="empty-icon">🏫</div><div style="margin-top:12px;font-size:15px">Henüz sınıf yok</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD CLASS PAGE -->
+<div id="page-addclass" class="hidden">
+  <div class="topbar">
+    <button class="topbar-back" onclick="showPage('page-home')">‹</button>
+    <div><div class="topbar-title">Yeni Sınıf</div></div>
+  </div>
+  <div class="form-page">
+    <label class="field-label">Sınıf Adı</label>
+    <input id="input-classname" class="field-input" placeholder="Örn: 8-A, 5-B, 7-C..." onkeydown="if(event.key==='Enter')addClass()">
+    <button class="btn-primary" onclick="addClass()">Sınıfı Oluştur</button>
+  </div>
+</div>
+
+<!-- ADD STUDENT PAGE -->
+<div id="page-addstudent" class="hidden">
+  <div class="topbar">
+    <button class="topbar-back" onclick="showPage('page-class')">‹</button>
+    <div>
+      <div class="topbar-title">Öğrenci Ekle</div>
+      <div class="topbar-sub" id="addstudent-sub"></div>
+    </div>
+  </div>
+  <div class="form-page">
+    <label class="excel-label">
+      📊 Excel Dosyası Yükle (.xlsx)
+      <input type="file" accept=".xlsx,.xls" style="display:none" onchange="handleExcel(event)">
+    </label>
+    <div class="excel-hint">Sütun sırası: No | İsim Soyisim</div>
+    <div class="divider"></div>
+    <div class="section-label">Ya da elle ekle</div>
+    <label class="field-label">Öğrenci No</label>
+    <input id="input-no" class="field-input" placeholder="Örn: 101" inputmode="numeric" onkeydown="if(event.key==='Enter')addStudent()">
+    <label class="field-label">İsim</label>
+    <input id="input-name" class="field-input" placeholder="Öğrenci adı" onkeydown="if(event.key==='Enter')addStudent()">
+    <label class="field-label">Soyisim</label>
+    <input id="input-surname" class="field-input" placeholder="Öğrenci soyadı" onkeydown="if(event.key==='Enter')addStudent()">
+    <button class="btn-primary" onclick="addStudent()">+ Öğrenci Ekle</button>
+    <button class="btn-secondary" onclick="showPage('page-class')">✓ Tamam, Sınıfa Dön</button>
+    <div id="added-list"></div>
+  </div>
+</div>
+
+<!-- CLASS PAGE -->
+<div id="page-class" class="hidden">
+  <div class="topbar">
+    <button class="topbar-back" onclick="showPage('page-home')">‹</button>
+    <div>
+      <div class="topbar-title" id="class-title"></div>
+      <div class="topbar-sub" id="class-sub"></div>
+    </div>
+  </div>
+  <div class="toolbar">
+    <button style="background:#1e3a5f;color:#60a5fa" onclick="showPage('page-addstudent')">➕ Öğrenci</button>
+    <button style="background:#052e16;color:#22c55e" onclick="newSession()">🔄 Yeni Ders</button>
+    <button style="background:#1c1a05;color:#eab308" onclick="exportCSV()">📤 CSV</button>
+    <button style="background:#2d0a0a;color:#ef4444" onclick="resetScores()">🗑 Sıfırla</button>
+  </div>
+  <div id="class-empty" class="hidden" style="text-align:center;padding:60px 20px;color:#64748b">
+    <div style="font-size:44px">👨‍🎓</div>
+    <div style="margin-top:12px;font-size:15px">Öğrenci eklenmedi</div>
+    <button style="margin-top:16px;padding:11px 26px;border:none;border-radius:10px;background:#3b82f6;color:white;font-size:14px;font-weight:700" onclick="showPage('page-addstudent')">+ Öğrenci Ekle</button>
+  </div>
+  <div class="table-wrap" id="table-wrap">
+    <table id="score-table">
+      <thead>
+        <tr>
+          <th class="left" style="width:36px">No</th>
+          <th class="left" style="min-width:90px">İsim</th>
+          <th style="min-width:90px">💬 Konuşma</th>
+          <th style="min-width:90px">📖 Katılım</th>
+          <th style="min-width:110px">🎯 Ders İçi</th>
+        </tr>
+      </thead>
+      <tbody id="score-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="toast hidden" id="toast"></div>
+
+<script>
+// ── STATE ──
+let classes = JSON.parse(localStorage.getItem('sinif_data') || '[]');
+let activeId = null;
+
+function save() { localStorage.setItem('sinif_data', JSON.stringify(classes)); }
+function getActive() { return classes.find(c => c.id === activeId); }
+function updActive(fn) { classes = classes.map(c => c.id === activeId ? fn(c) : c); save(); }
+
+// ── NAVIGATION ──
+function showPage(id) {
+  document.querySelectorAll('[id^="page-"]').forEach(el => el.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  if (id === 'page-home') renderHome();
+  if (id === 'page-class') renderClass();
+  if (id === 'page-addstudent') renderAddedList();
+  window.scrollTo(0, 0);
+}
+
+// ── TOAST ──
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.remove('hidden');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.add('hidden'), 2200);
+}
+
+// ── HOME ──
+function renderHome() {
+  const list = document.getElementById('class-list');
+  if (classes.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">🏫</div><div style="margin-top:12px;font-size:15px">Henüz sınıf yok</div></div>';
+    return;
+  }
+  list.innerHTML = classes.map(cls => `
+    <div class="class-card" onclick="openClass(${cls.id})">
+      <div>
+        <div class="class-name">${cls.name}</div>
+        <div class="class-meta">${cls.students.length} öğrenci · Ders ${cls.session}</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="class-arrow">›</span>
+        <button class="btn-del" onclick="event.stopPropagation();deleteClass(${cls.id})">🗑</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openClass(id) { activeId = id; showPage('page-class'); }
+
+function deleteClass(id) {
+  if (!confirm(`"${classes.find(c=>c.id===id)?.name}" silinsin mi?`)) return;
+  classes = classes.filter(c => c.id !== id); save(); renderHome();
+  showToast('Sınıf silindi');
+}
+
+// ── ADD CLASS ──
+function addClass() {
+  const name = document.getElementById('input-classname').value.trim(); if (!name) return;
+  classes.push({ id: Date.now(), name, students: [], session: 1 }); save();
+  document.getElementById('input-classname').value = '';
+  showToast(`"${name}" oluşturuldu ✓`);
+  showPage('page-home');
+}
+
+// ── ADD STUDENT ──
+function renderAddedList() {
+  const cls = getActive(); if (!cls) return;
+  document.getElementById('addstudent-sub').textContent = cls.name;
+  const sorted = [...cls.students].sort((a,b) => (a.no||'999').localeCompare(b.no||'999', undefined, {numeric:true}));
+  document.getElementById('added-list').innerHTML = sorted.length === 0 ? '' : `
+    <div class="student-list">
+      <div class="student-list-header">Eklendi (${sorted.length})</div>
+      ${sorted.map(s => `
+        <div class="student-row">
+          <div style="display:flex;gap:10px;align-items:center">
+            <span class="student-badge">${s.no||'—'}</span>
+            <span class="student-row-name">${s.name} ${s.surname}</span>
+          </div>
+          <button class="btn-remove" onclick="removeStudent('${s.id}')">✕</button>
+        </div>
+      `).join('')}
+    </div>`;
+}
+
+function addStudent() {
+  const no = document.getElementById('input-no').value.trim();
+  const name = document.getElementById('input-name').value.trim(); if (!name) return;
+  const surname = document.getElementById('input-surname').value.trim();
+  const s = { id: String(Date.now()+Math.random()), name, surname, no, konusma:0, katilim:0, dersPos:0, dersNeg:0 };
+  updActive(c => ({...c, students:[...c.students, s]}));
+  document.getElementById('input-no').value='';
+  document.getElementById('input-name').value='';
+  document.getElementById('input-surname').value='';
+  document.getElementById('input-no').focus();
+  showToast(`${name} ${surname} eklendi`);
+  renderAddedList();
+}
+
+function removeStudent(sid) {
+  updActive(c => ({...c, students: c.students.filter(s => s.id !== sid)}));
+  renderAddedList();
+}
+
+function handleExcel(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const wb = XLSX.read(ev.target.result, {type:'array'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+      const firstVal = String(rows[0]?.[0]||'').trim();
+      const startRow = isNaN(firstVal) || firstVal==='' ? 1 : 0;
+      const added = [];
+      for (let i = startRow; i < rows.length; i++) {
+        const no = String(rows[i][0]||'').trim();
+        const fullName = String(rows[i][1]||'').trim();
+        if (!fullName) continue;
+        const parts = fullName.split(/\s+/);
+        const surname = parts.length > 1 ? parts[parts.length-1] : '';
+        const name = parts.length > 1 ? parts.slice(0,-1).join(' ') : parts[0];
+        added.push({ id: String(Date.now()+Math.random()), name, surname, no, konusma:0, katilim:0, dersPos:0, dersNeg:0 });
+      }
+      if (added.length === 0) { showToast('Öğrenci bulunamadı!'); return; }
+      updActive(c => ({...c, students:[...c.students, ...added]}));
+      showToast(`${added.length} öğrenci yüklendi ✓`);
+      renderAddedList();
+    } catch(err) { showToast('Dosya okunamadı!'); }
+  };
+  reader.readAsArrayBuffer(file);
+  e.target.value='';
+}
+
+// ── CLASS VIEW ──
+function renderClass() {
+  const cls = getActive(); if (!cls) return;
+  document.getElementById('class-title').textContent = cls.name;
+  document.getElementById('class-sub').textContent = `Ders ${cls.session} · ${cls.students.length} öğrenci`;
+  const sorted = [...cls.students].sort((a,b) => (a.no||'999').localeCompare(b.no||'999', undefined, {numeric:true}));
+  if (sorted.length === 0) {
+    document.getElementById('class-empty').classList.remove('hidden');
+    document.getElementById('table-wrap').classList.add('hidden');
+    return;
+  }
+  document.getElementById('class-empty').classList.add('hidden');
+  document.getElementById('table-wrap').classList.remove('hidden');
+  const tbody = document.getElementById('score-tbody');
+  tbody.innerHTML = sorted.map((s, i) => {
+    const vc = s.konusma > 0 ? '#22c55e' : s.konusma < 0 ? '#ef4444' : '#64748b';
+    const vk = s.katilim > 0 ? '#22c55e' : s.katilim < 0 ? '#ef4444' : '#64748b';
+    return `
+    <tr class="${i%2===0?'even':'odd'}">
+      <td style="font-size:11px;color:#64748b;font-weight:800;text-align:center">${s.no||''}</td>
+      <td class="left">
+        <div style="font-size:12px;font-weight:700;color:#e2e8f0">${s.name}</div>
+        <div style="font-size:10px;color:#64748b">${s.surname}</div>
+      </td>
+      <td>
+        <div class="score-cell">
+          <span class="score-val" style="color:${vc}" id="v-konusma-${s.id}">${s.konusma>0?'+':''}${s.konusma}</span>
+          <div class="score-btns">
+            <button class="btn-plus" onclick="change('${s.id}','konusma',1)">+</button>
+            <button class="btn-minus" onclick="change('${s.id}','konusma',-1)">−</button>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="score-cell">
+          <span class="score-val" style="color:${vk}" id="v-katilim-${s.id}">${s.katilim>0?'+':''}${s.katilim}</span>
+          <div class="score-btns">
+            <button class="btn-plus" onclick="change('${s.id}','katilim',1)">+</button>
+            <button class="btn-minus" onclick="change('${s.id}','katilim',-1)">−</button>
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="score-cell">
+          <div class="ders-vals">
+            <span class="ders-pos" id="v-dersPos-${s.id}">+${s.dersPos}</span>
+            <span class="ders-neg" id="v-dersNeg-${s.id}">−${s.dersNeg}</span>
+          </div>
+          <div class="score-btns">
+            <button class="btn-plus" onclick="change('${s.id}','dersPos',1)">+</button>
+            <button class="btn-minus" onclick="change('${s.id}','dersNeg',1)">−</button>
+          </div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function change(sid, col, delta) {
+  const cls = getActive(); if (!cls) return;
+  const s = cls.students.find(s => s.id === sid); if (!s) return;
+  if (col === 'dersPos' || col === 'dersNeg') s[col] = Math.max(0, s[col] + delta);
+  else s[col] += delta;
+  save();
+  // Update only the changed cell (no full re-render = no scroll jump)
+  const el = document.getElementById(`v-${col}-${sid}`);
+  if (el) {
+    if (col === 'konusma' || col === 'katilim') {
+      el.textContent = (s[col]>0?'+':'') + s[col];
+      el.style.color = s[col]>0?'#22c55e':s[col]<0?'#ef4444':'#64748b';
+    } else if (col === 'dersPos') { el.textContent = '+' + s.dersPos; }
+    else if (col === 'dersNeg') { el.textContent = '−' + s.dersNeg; }
+  }
+  // Update subtitle
+  document.getElementById('class-sub').textContent = `Ders ${cls.session} · ${cls.students.length} öğrenci`;
+}
+
+function newSession() {
+  if (!confirm('Yeni ders başlatılsın mı? Puanlar sıfırlanır.')) return;
+  updActive(c => ({...c, session: c.session+1, students: c.students.map(s => ({...s, konusma:0, katilim:0, dersPos:0, dersNeg:0}))}));
+  renderClass();
+  showToast('Yeni ders başladı!');
+}
+
+function resetScores() {
+  if (!confirm('Tüm puanlar sıfırlansın mı?')) return;
+  updActive(c => ({...c, students: c.students.map(s => ({...s, konusma:0, katilim:0, dersPos:0, dersNeg:0}))}));
+  renderClass();
+  showToast('Sıfırlandı');
+}
+
+function exportCSV() {
+  const cls = getActive(); if (!cls) return;
+  let csv = '\uFEFFNo,İsim,Soyisim,Konuşma,Katılım,Ders(+),Ders(-)\n';
+  [...cls.students].sort((a,b)=>(a.no||'999').localeCompare(b.no||'999',undefined,{numeric:true}))
+    .forEach(s => { csv += [s.no,s.name,s.surname,s.konusma,s.katilim,s.dersPos,s.dersNeg].join(',') + '\n'; });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+  a.download = `${cls.name.replace(/\s+/g,'_')}_ders${cls.session}.csv`;
+  a.click();
+  showToast('CSV indirildi ✓');
+}
+
+// ── INIT ──
+showPage('page-home');
+</script>
+</body>
+</html>
