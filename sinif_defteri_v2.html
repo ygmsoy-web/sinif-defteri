@@ -466,12 +466,12 @@ function deleteClass(id) {
 // COLUMN BUILDER (for new class)
 // ══════════════════════════════════════════
 const COL_TYPES = [
-  { id: 'counter',            label: 'Sayaç',           preview: previewCounter },
-  { id: 'dual',               label: 'Ders İçi',        preview: previewDual },
+  { id: 'counter',            label: 'Sayaç 1',           preview: previewCounter },
+  { id: 'dual',               label: 'Sayaç 2',        preview: previewDual },
   { id: 'manual',             label: 'Manuel',          preview: previewManual },
-  { id: 'counter_manual',     label: 'Sayaç + Manuel',  preview: previewCounterManual },
-  { id: 'dual_manual',        label: 'Ders İçi + Manuel', preview: previewDualManual },
-  { id: 'counter_dual_manual',label: 'Tam Karma',       preview: previewFullKarma },
+  { id: 'counter_manual',     label: 'Sayaç 1 + Manuel',  preview: previewCounterManual },
+  { id: 'dual_manual',        label: 'Sayaç 2 + Manuel', preview: previewDualManual },
+  { id: 'counter_dual_manual',label: 'S1 + S2 + Manuel',       preview: previewFullKarma },
 ];
 
 function miniBtn(color, bg, label) {
@@ -594,27 +594,36 @@ function openCriteriaBuilder(colIdx) {
 }
 
 function renderCritBuilder() {
-  const used = tempCriteria.reduce((s, c) => s + Number(c.max || 0), 0);
-  document.getElementById('crit-builder-list').innerHTML = tempCriteria.map((cr, i) => `
+  document.getElementById('crit-builder-list').innerHTML = tempCriteria.map((cr, i) => {
+    const otherSum = tempCriteria.reduce((s, c, j) => j !== i ? s + Number(c.max || 0) : s, 0);
+    const maxAllowed = Math.max(1, 100 - otherSum);
+    return `
     <div class="crit-item">
       <input class="field-input crit-name-input" value="${cr.name}" oninput="tempCriteria[${i}].name=this.value" placeholder="Kriter adı">
-      <input class="field-input crit-max-input" type="number" min="1" max="100" value="${cr.max}" oninput="tempCriteria[${i}].max=Number(this.value);updateCritTotal()" placeholder="Max">
+      <div style="display:flex;align-items:center;gap:4px">
+        <input class="field-input crit-max-input" type="number" min="1" max="${maxAllowed}" value="${cr.max}"
+          oninput="tempCriteria[${i}].max=Math.min(${maxAllowed},Math.max(1,Number(this.value)||1));this.value=tempCriteria[${i}].max;updateCritTotal()"
+          placeholder="Max">
+        <span style="font-size:11px;color:var(--text2);white-space:nowrap">/ ${maxAllowed}</span>
+      </div>
       <button onclick="removeCritRow(${i})" style="background:var(--red-dim);border:none;border-radius:8px;color:var(--red);padding:8px 10px;font-weight:700">✕</button>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
   updateCritTotal();
 }
 
 function updateCritTotal() {
   const used = tempCriteria.reduce((s, c) => s + Number(c.max || 0), 0);
+  const remaining = 100 - used;
   const el = document.getElementById('crit-total-display');
-  el.textContent = 'Toplam maksimum puan: ' + used + ' / 100';
+  el.textContent = 'Toplam: ' + used + ' / 100' + (remaining > 0 ? ' (kalan: ' + remaining + ')' : '');
   el.style.color = used > 100 ? 'var(--red)' : used === 100 ? 'var(--green)' : 'var(--text2)';
 }
 
 function addCritRow() {
   const used = tempCriteria.reduce((s, c) => s + Number(c.max || 0), 0);
-  const rem = Math.max(0, 100 - used);
+  const rem = 100 - used;
+  if (rem <= 0) { showToast('Toplam zaten 100! Önce bir kriteri azaltın.'); return; }
   tempCriteria.push({ name: 'Kriter ' + (tempCriteria.length + 1), max: Math.min(rem, 20) });
   renderCritBuilder();
 }
