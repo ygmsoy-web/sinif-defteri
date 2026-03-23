@@ -466,13 +466,65 @@ function deleteClass(id) {
 // COLUMN BUILDER (for new class)
 // ══════════════════════════════════════════
 const COL_TYPES = [
-  { id: 'counter', label: '＋/− Sayaç', hint: 'Net toplam (örn: +3)' },
-  { id: 'dual', label: '＋/− Ders İçi', hint: 'Artı ve eksi ayrı' },
-  { id: 'manual', label: '📝 Manuel', hint: 'Elle sayı girişi' },
-  { id: 'counter_manual', label: '＋/− & Manuel', hint: 'İkisi birlikte' },
-  { id: 'dual_manual', label: 'Ders İçi & Manuel', hint: 'İkisi birlikte' },
-  { id: 'counter_dual_manual', label: 'Tam Karma', hint: 'Sayaç + Ders İçi + Manuel' },
+  { id: 'counter',            label: 'Sayaç',           preview: previewCounter },
+  { id: 'dual',               label: 'Ders İçi',        preview: previewDual },
+  { id: 'manual',             label: 'Manuel',          preview: previewManual },
+  { id: 'counter_manual',     label: 'Sayaç + Manuel',  preview: previewCounterManual },
+  { id: 'dual_manual',        label: 'Ders İçi + Manuel', preview: previewDualManual },
+  { id: 'counter_dual_manual',label: 'Tam Karma',       preview: previewFullKarma },
 ];
+
+function miniBtn(color, bg, label) {
+  return `<div style="width:28px;height:28px;border-radius:6px;background:${bg};color:${color};display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900">${label}</div>`;
+}
+function miniVal(v, color) {
+  return `<span style="font-weight:800;font-size:13px;color:${color};min-width:24px;text-align:center;font-family:monospace">${v}</span>`;
+}
+function miniScore(v) {
+  return `<span style="font-weight:800;font-size:13px;color:var(--accent);background:var(--bg3);border-radius:6px;padding:2px 7px;font-family:monospace">${v}</span>`;
+}
+
+function previewCounter() {
+  return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+    ${miniVal('+2','var(--green)')}
+    <div style="display:flex;gap:4px">${miniBtn('var(--green)','var(--green-dim)','+')}${miniBtn('var(--red)','var(--red-dim)','−')}</div>
+  </div>`;
+}
+function previewDual() {
+  return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+    <div style="display:flex;gap:4px;align-items:center">${miniVal('+3','var(--green)')}<span style="color:var(--text2);font-size:12px">/</span>${miniVal('−1','var(--red)')}</div>
+    <div style="display:flex;gap:4px">${miniBtn('var(--green)','var(--green-dim)','+')}${miniBtn('var(--red)','var(--red-dim)','−')}</div>
+  </div>`;
+}
+function previewManual() {
+  return `<div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+    ${miniScore('85/100')}
+    <span style="font-size:10px;color:var(--text2)">tıkla → gir</span>
+  </div>`;
+}
+function previewCounterManual() {
+  return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+    ${miniVal('+2','var(--green)')}
+    <div style="display:flex;gap:4px">${miniBtn('var(--green)','var(--green-dim)','+')}${miniBtn('var(--red)','var(--red-dim)','−')}</div>
+    ${miniScore('75/100')}
+  </div>`;
+}
+function previewDualManual() {
+  return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+    <div style="display:flex;gap:3px">${miniVal('+2','var(--green)')}<span style="color:var(--text2)">/</span>${miniVal('−1','var(--red)')}</div>
+    <div style="display:flex;gap:4px">${miniBtn('var(--green)','var(--green-dim)','+')}${miniBtn('var(--red)','var(--red-dim)','−')}</div>
+    ${miniScore('85/100')}
+  </div>`;
+}
+function previewFullKarma() {
+  return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+    ${miniVal('+1','var(--green)')}
+    <div style="display:flex;gap:3px">${miniBtn('var(--green)','var(--green-dim)','+')}${miniBtn('var(--red)','var(--red-dim)','−')}</div>
+    <div style="display:flex;gap:3px">${miniVal('+2','var(--green)')}<span style="color:var(--text2);font-size:11px">/</span>${miniVal('−1','var(--red)')}</div>
+    <div style="display:flex;gap:3px">${miniBtn('var(--green)','var(--green-dim)','+')}${miniBtn('var(--red)','var(--red-dim)','−')}</div>
+    ${miniScore('80/100')}
+  </div>`;
+}
 const COL_HINTS = ['Konuşma', 'Katılım', 'Davranış', 'Sınav', 'Ödev'];
 
 // tempCols holds config while building
@@ -493,12 +545,13 @@ function renderColBuilder() {
         <label class="field-label">Sütun Adı</label>
         <input class="field-input" value="${col.name}" oninput="tempCols[${i}].name=this.value" placeholder="${COL_HINTS[i]||'Sütun adı'}">
       </div>
-      <div class="field-label" style="margin-bottom:6px">Notlama Tipi</div>
-      <div class="col-type-grid">
+      <div class="field-label" style="margin-bottom:8px">Notlama Tipi</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
         ${COL_TYPES.map(t => `
-          <button class="col-type-btn ${col.type===t.id?'active':''}" onclick="setColType(${i},'${t.id}')">
-            ${t.label}
-          </button>
+          <div onclick="setColType(${i},'${t.id}')" style="border:2px solid ${col.type===t.id?'var(--accent)':'var(--border)'};border-radius:10px;background:${col.type===t.id?'var(--accent-dim)':'var(--bg3)'};padding:8px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .15s">
+            <div style="font-size:10px;font-weight:700;color:${col.type===t.id?'var(--accent)':'var(--text2)'};text-align:center;min-height:24px;display:flex;align-items:center">${t.label}</div>
+            <div style="pointer-events:none">${t.preview()}</div>
+          </div>
         `).join('')}
       </div>
       ${hasManual(col.type) ? `
@@ -785,11 +838,13 @@ function renderCell(s, ci, col) {
   if (type.includes('manual')) {
     const hasCrit = col.criteria && col.criteria.length > 0;
     const v = sc.manual;
-    const display = v !== null && v !== undefined ? v : '—';
     const maxP = hasCrit ? col.criteria.reduce((s,c)=>s+Number(c.max),0) : 100;
+    const display = v !== null && v !== undefined ? v + '/' + maxP : '—';
+    const clickFn = hasCrit ? `openCriteriaScore('${s.id}',${ci})` : `openManual('${s.id}',${ci})`;
+    const cls2 = hasCrit ? 'manual-val has-criteria' : 'manual-val';
     parts.push(`
       <div class="cell-manual">
-        <span class="manual-val${hasCrit?' has-criteria':''}" id="mv-${s.id}-${ci}" onclick="${hasCrit?`openCriteriaScore('${s.id}',${ci})`:`openManual('${s.id}',${ci})`}">${display}${v!==null&&v!==undefined?'/'+maxP:''}</span>
+        <span class="${cls2}" id="mv-${s.id}-${ci}" onclick="${clickFn}">${display}</span>
       </div>
     `);
   }
@@ -882,6 +937,12 @@ function clearManual() {
 function updateManualDisplay(sid, ci, v, maxP) {
   const el = document.getElementById('mv-'+sid+'-'+ci);
   if (el) el.textContent = v !== null && v !== undefined ? v + '/' + maxP : '—';
+}
+
+function getMaxP(col) {
+  return col.criteria && col.criteria.length > 0
+    ? col.criteria.reduce((s,c)=>s+Number(c.max),0)
+    : 100;
 }
 
 // ══════════════════════════════════════════
