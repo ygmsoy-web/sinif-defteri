@@ -5,367 +5,233 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#0f1923">
+<meta name="theme-color" content="#0d1117">
 <title>Sınıf Defteri</title>
 <link rel="manifest" href="manifest.json">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-:root {
-  --bg: #0d1117;
-  --bg2: #161b22;
-  --bg3: #21262d;
-  --border: #30363d;
-  --text: #e6edf3;
-  --text2: #8b949e;
-  --accent: #2f81f7;
-  --accent-dim: #1f4d99;
-  --green: #3fb950;
-  --green-dim: #0d3320;
-  --red: #f85149;
-  --red-dim: #3d1a1a;
-  --yellow: #d29922;
-  --yellow-dim: #2d1f00;
-  --radius: 12px;
-  --shadow: 0 4px 24px rgba(0,0,0,.4);
-}
-[data-theme="light"] {
-  --bg: #f6f8fa;
-  --bg2: #ffffff;
-  --bg3: #eaeef2;
-  --border: #d0d7de;
-  --text: #1f2328;
-  --text2: #656d76;
-  --accent: #0969da;
-  --accent-dim: #ddf4ff;
-  --green: #1a7f37;
-  --green-dim: #dafbe1;
-  --red: #cf222e;
-  --red-dim: #ffebe9;
-  --yellow: #9a6700;
-  --yellow-dim: #fff8c5;
-  --shadow: 0 4px 24px rgba(0,0,0,.08);
-}
+:root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--border:#30363d;--text:#e6edf3;--text2:#8b949e;--ac:#2f81f7;--ac-dim:#1f4d99;--gr:#3fb950;--gr-dim:#0d3320;--re:#f85149;--re-dim:#3d1a1a;--ye:#d29922;--ye-dim:#2d1f00;--r:12px;--sh:0 4px 24px rgba(0,0,0,.4)}
+[data-theme="light"]{--bg:#f6f8fa;--bg2:#fff;--bg3:#eaeef2;--border:#d0d7de;--text:#1f2328;--text2:#656d76;--ac:#0969da;--ac-dim:#ddf4ff;--gr:#1a7f37;--gr-dim:#dafbe1;--re:#cf222e;--re-dim:#ffebe9;--ye:#9a6700;--ye-dim:#fff8c5;--sh:0 4px 24px rgba(0,0,0,.08)}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overscroll-behavior:none;transition:background .2s,color .2s}
 button{cursor:pointer;font-family:inherit}
 .hidden{display:none!important}
-
-/* TOPBAR */
 .topbar{background:var(--bg2);padding:13px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border)}
-.topbar-back{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:6px 13px;font-size:18px;font-weight:700;flex-shrink:0}
-.topbar-info{flex:1;min-width:0}
-.topbar-title{font-size:15px;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.topbar-sub{font-size:11px;color:var(--text2);margin-top:1px}
-.topbar-actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
-.theme-btn{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:7px 10px;font-size:16px;color:var(--text)}
-
-/* PAGES */
-.page{padding:16px}
-.hidden{display:none!important}
-
-/* HOME */
-.home-header{padding:24px 16px 8px;display:flex;align-items:center;justify-content:space-between}
-.home-title{font-size:22px;font-weight:800;color:var(--text)}
+.tb-back{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:6px 13px;font-size:18px;font-weight:700;flex-shrink:0}
+.tb-info{flex:1;min-width:0}
+.tb-title{font-size:15px;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-sub{font-size:11px;color:var(--text2);margin-top:1px}
+.theme-btn{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:7px 10px;font-size:16px;color:var(--text);flex-shrink:0}
+.home-hdr{padding:24px 16px 8px;display:flex;align-items:center;justify-content:space-between}
+.home-title{font-size:22px;font-weight:800}
 .home-sub{font-size:13px;color:var(--text2);margin-top:2px}
-.btn-new-class{display:flex;align-items:center;gap:8px;width:calc(100% - 32px);margin:8px 16px;padding:15px;border:2px dashed var(--accent);border-radius:var(--radius);background:transparent;color:var(--accent);font-size:14px;font-weight:700}
-.class-card{background:var(--bg2);border-radius:var(--radius);padding:16px;margin:0 16px 10px;border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:border-color .15s}
-.class-card:active{border-color:var(--accent)}
-.class-card-name{font-weight:800;font-size:16px;color:var(--text)}
-.class-card-meta{font-size:12px;color:var(--text2);margin-top:3px}
-.class-card-right{display:flex;gap:8px;align-items:center}
-.btn-icon{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:14px;color:var(--text2)}
-.btn-icon-red{background:var(--red-dim);border:none;color:var(--red)}
-.empty-state{text-align:center;padding:60px 20px;color:var(--text2)}
-.empty-icon{font-size:48px;margin-bottom:12px}
-
-/* FORM */
-.form-wrap{padding:16px}
-.field-group{margin-bottom:16px}
-.field-label{display:block;font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}
-.field-input{width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;font-size:15px;color:var(--text);outline:none;font-family:inherit;transition:border-color .15s}
-.field-input:focus{border-color:var(--accent)}
-.field-select{width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;font-size:15px;color:var(--text);outline:none;font-family:inherit;appearance:none;-webkit-appearance:none}
-.field-hint{font-size:11px;color:var(--text2);margin-top:5px}
-.btn-primary{width:100%;padding:14px;border:none;border-radius:var(--radius);background:var(--accent);color:white;font-size:15px;font-weight:800;margin-bottom:10px}
-.btn-secondary{width:100%;padding:13px;border:1.5px solid var(--border);border-radius:var(--radius);background:transparent;color:var(--text);font-size:14px;font-weight:700;margin-bottom:10px}
-.btn-danger{width:100%;padding:13px;border:none;border-radius:var(--radius);background:var(--red-dim);color:var(--red);font-size:14px;font-weight:700}
-
-/* COLUMN BUILDER */
-.col-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px}
-.col-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.col-card-num{background:var(--accent-dim);color:var(--accent);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:800}
-.col-type-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
-.col-type-btn{padding:9px 6px;border:1.5px solid var(--border);border-radius:9px;background:transparent;color:var(--text2);font-size:11px;font-weight:700;text-align:center;transition:all .15s}
-.col-type-btn.active{border-color:var(--accent);background:var(--accent-dim);color:var(--accent)}
-.criteria-preview{background:var(--bg3);border-radius:8px;padding:10px 12px;margin-top:8px;font-size:12px;color:var(--text2)}
-.btn-add-criteria{display:flex;align-items:center;gap:6px;padding:9px 12px;border:1.5px dashed var(--green);border-radius:9px;background:transparent;color:var(--green);font-size:12px;font-weight:700;margin-top:8px;width:100%}
-
-/* TOOLBAR */
+.btn-dashed{display:flex;align-items:center;gap:8px;width:calc(100% - 32px);margin:8px 16px;padding:15px;border:2px dashed var(--ac);border-radius:var(--r);background:transparent;color:var(--ac);font-size:14px;font-weight:700}
+.cls-card{background:var(--bg2);border-radius:var(--r);padding:16px;margin:0 16px 10px;border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.cls-name{font-weight:800;font-size:16px}
+.cls-meta{font-size:12px;color:var(--text2);margin-top:3px}
+.btn-del{background:var(--re-dim);border:none;border-radius:8px;color:var(--re);padding:7px 11px;font-size:14px}
+.empty{text-align:center;padding:60px 20px;color:var(--text2)}
+.fw{padding:16px}
+.flabel{display:block;font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}
+.finput{width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;font-size:15px;color:var(--text);outline:none;font-family:inherit;transition:border-color .15s;margin-bottom:14px}
+.finput:focus{border-color:var(--ac)}
+.fselect{width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;font-size:15px;color:var(--text);outline:none;font-family:inherit;appearance:none;margin-bottom:14px}
+.fhint{font-size:11px;color:var(--text2);margin-top:-10px;margin-bottom:14px}
+.btn-p{width:100%;padding:14px;border:none;border-radius:var(--r);background:var(--ac);color:#fff;font-size:15px;font-weight:800;margin-bottom:10px}
+.btn-s{width:100%;padding:13px;border:1.5px solid var(--border);border-radius:var(--r);background:transparent;color:var(--text);font-size:14px;font-weight:700;margin-bottom:10px}
+.col-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px}
+.col-num{background:var(--ac-dim);color:var(--ac);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:800}
+.type-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px}
+.type-card{border:2px solid var(--border);border-radius:10px;background:var(--bg3);padding:8px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .15s}
+.type-card.active{border-color:var(--ac);background:var(--ac-dim)}
+.type-label{font-size:10px;font-weight:700;color:var(--text2);text-align:center;min-height:24px;display:flex;align-items:center;justify-content:center}
+.type-card.active .type-label{color:var(--ac)}
+.btn-crit{display:flex;align-items:center;gap:6px;padding:9px 12px;border:1.5px dashed var(--gr);border-radius:9px;background:transparent;color:var(--gr);font-size:12px;font-weight:700;margin-top:8px;width:100%}
+.crit-preview{background:var(--bg3);border-radius:8px;padding:8px 12px;margin-top:6px;font-size:12px;color:var(--text2)}
 .toolbar{display:flex;gap:5px;padding:8px 12px;flex-wrap:wrap;border-bottom:1px solid var(--border);background:var(--bg2)}
-.toolbar-btn{flex:1;padding:9px 4px;border:none;border-radius:9px;font-size:11px;font-weight:800;min-width:52px;white-space:nowrap}
-
-/* TABLE */
-.table-wrap{overflow-x:auto;padding:12px 12px 100px}
-table{width:100%;border-collapse:collapse;background:var(--bg2);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);font-size:12px}
+.tb-btn{flex:1;padding:9px 4px;border:none;border-radius:9px;font-size:11px;font-weight:800;min-width:52px;white-space:nowrap}
+.note-bar{margin:8px 12px;background:var(--ye-dim);border-radius:10px;padding:10px 14px;border-left:3px solid var(--ye);cursor:pointer}
+.note-bar-lbl{font-size:10px;font-weight:700;color:var(--ye);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.note-bar-txt{font-size:13px;white-space:pre-wrap;line-height:1.4}
+.twrap{overflow-x:auto;padding:12px 12px 100px}
+table{width:100%;border-collapse:collapse;background:var(--bg2);border-radius:var(--r);overflow:hidden;border:1px solid var(--border);font-size:12px}
 thead tr{background:var(--bg3)}
 th{padding:10px 6px;font-size:10px;font-weight:700;color:var(--text2);text-align:center;border-bottom:1px solid var(--border);white-space:nowrap}
-th.left{text-align:left;padding-left:10px}
+th.l{text-align:left;padding-left:10px}
 td{padding:5px 4px;vertical-align:middle;text-align:center;border-bottom:1px solid var(--border)}
-td.left{text-align:left;padding-left:8px}
-tr.even{background:var(--bg2)}
-tr.odd{background:var(--bg)}
-
-/* SCORE CELLS */
-.cell-counter{display:flex;flex-direction:column;align-items:center;gap:3px}
-.cell-val{font-weight:800;font-size:14px;min-width:28px;text-align:center;font-family:'DM Mono',monospace}
-.cell-btns{display:flex;gap:3px}
-.btn-p{width:34px;height:34px;border:none;border-radius:8px;background:var(--green-dim);color:var(--green);font-size:20px;font-weight:900}
-.btn-m{width:34px;height:34px;border:none;border-radius:8px;background:var(--red-dim);color:var(--red);font-size:20px;font-weight:900}
-
-.cell-dual{display:flex;gap:3px;font-size:12px;font-weight:800;font-family:'DM Mono',monospace}
-.dual-pos{color:var(--green)}
-.dual-neg{color:var(--red)}
-
-.cell-manual{display:flex;flex-direction:column;align-items:center;gap:3px}
-.manual-val{font-weight:800;font-size:15px;font-family:'DM Mono',monospace;min-width:36px;text-align:center;cursor:pointer;padding:4px 6px;border-radius:7px;background:var(--bg3);border:1px solid var(--border)}
-.manual-val:hover{border-color:var(--accent)}
-.manual-val.has-criteria{color:var(--accent)}
-
-/* NOTE */
-.name-cell{cursor:pointer}
-.note-dot{display:inline-block;width:6px;height:6px;background:var(--yellow);border-radius:50%;margin-left:4px;vertical-align:middle}
-
-/* CLASS NOTE BAR */
-.class-note-bar{margin:0 12px 8px;background:var(--yellow-dim);border-radius:10px;padding:10px 14px;border-left:3px solid var(--yellow);cursor:pointer}
-.class-note-bar-label{font-size:10px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
-.class-note-bar-text{font-size:13px;color:var(--text);white-space:pre-wrap;line-height:1.4}
-
-/* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:flex;align-items:flex-end;justify-content:center}
-.modal-box{background:var(--bg2);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:640px;border-top:1px solid var(--border);max-height:85vh;overflow-y:auto}
-.modal-title{font-size:16px;font-weight:800;color:var(--text);margin-bottom:4px}
-.modal-sub{font-size:12px;color:var(--text2);margin-bottom:16px}
-.modal-btns{display:flex;gap:8px;margin-top:12px}
-.modal-btns button{flex:1;padding:12px;border:none;border-radius:10px;font-size:14px;font-weight:800}
-.note-textarea{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:13px;font-size:14px;color:var(--text);outline:none;resize:none;height:150px;font-family:inherit;line-height:1.5}
-.note-textarea:focus{border-color:var(--accent)}
-
-/* MANUAL INPUT MODAL */
-.manual-input-big{width:100%;background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:16px;font-size:28px;font-weight:800;color:var(--text);text-align:center;outline:none;font-family:'DM Mono',monospace}
-.manual-input-big:focus{border-color:var(--accent)}
-
-/* CRITERIA MODAL */
-.criteria-row{background:var(--bg3);border-radius:9px;padding:12px;margin-bottom:8px}
-.criteria-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px}
-.criteria-score-row{display:flex;align-items:center;gap:8px}
-.criteria-input{flex:1;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;padding:10px;font-size:20px;font-weight:800;color:var(--text);text-align:center;outline:none;font-family:'DM Mono',monospace}
-.criteria-input:focus{border-color:var(--accent)}
-.criteria-max{font-size:12px;color:var(--text2);white-space:nowrap}
-.criteria-total-bar{background:var(--bg3);border-radius:10px;padding:12px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
-.criteria-total-label{font-size:12px;color:var(--text2)}
-.criteria-total-val{font-size:20px;font-weight:800;font-family:'DM Mono',monospace}
-
-/* CRITERIA BUILDER */
-.crit-item{background:var(--bg3);border-radius:9px;padding:11px 12px;margin-bottom:8px;display:flex;gap:8px;align-items:center}
-.crit-item input{background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--text);outline:none;font-family:inherit}
-.crit-item input:focus{border-color:var(--accent)}
-.crit-name-input{flex:2}
-.crit-max-input{flex:1;text-align:center;font-family:'DM Mono',monospace}
-
-/* EXCEL UPLOAD */
-.excel-label{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border:2px dashed var(--green);border-radius:var(--radius);background:var(--green-dim);color:var(--green);font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px}
+td.l{text-align:left;padding-left:8px}
+tr.ev{background:var(--bg2)}
+tr.od{background:var(--bg)}
+.bp{width:34px;height:34px;border:none;border-radius:8px;background:var(--gr-dim);color:var(--gr);font-size:20px;font-weight:900}
+.bm{width:34px;height:34px;border:none;border-radius:8px;background:var(--re-dim);color:var(--re);font-size:20px;font-weight:900}
+.mv{font-weight:800;font-size:15px;font-family:'DM Mono',monospace;padding:4px 8px;border-radius:7px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;display:inline-block;min-width:48px;text-align:center}
+.mv.crit{color:var(--ac)}
+.ndot{display:inline-block;width:6px;height:6px;background:var(--ye);border-radius:50%;margin-left:4px;vertical-align:middle}
+.excel-lbl{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border:2px dashed var(--gr);border-radius:var(--r);background:var(--gr-dim);color:var(--gr);font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px}
 .divider{height:1px;background:var(--border);margin:16px 0}
-.section-label{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
-
-/* TOAST */
-.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--bg3);color:var(--text);padding:10px 22px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;white-space:nowrap;box-shadow:var(--shadow);border:1px solid var(--border);pointer-events:none}
+.slabel{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+.slist{margin-top:20px;background:var(--bg2);border-radius:var(--r);overflow:hidden;border:1px solid var(--border)}
+.slist-hdr{padding:10px 14px;border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase}
+.srow{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border)}
+.sbadge{background:var(--ac-dim);color:var(--ac);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:800}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+.mbox{background:var(--bg2);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:640px;border-top:1px solid var(--border);max-height:85vh;overflow-y:auto}
+.mtitle{font-size:16px;font-weight:800;margin-bottom:4px}
+.msub{font-size:12px;color:var(--text2);margin-bottom:16px}
+.mbtns{display:flex;gap:8px;margin-top:12px}
+.mbtns button{flex:1;padding:12px;border:none;border-radius:10px;font-size:14px;font-weight:800}
+.note-ta{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:13px;font-size:14px;color:var(--text);outline:none;resize:none;height:150px;font-family:inherit;line-height:1.5}
+.note-ta:focus{border-color:var(--ac)}
+.big-input{width:100%;background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:16px;font-size:28px;font-weight:800;color:var(--text);text-align:center;outline:none;font-family:'DM Mono',monospace}
+.big-input:focus{border-color:var(--ac)}
+.crit-row{background:var(--bg3);border-radius:9px;padding:12px;margin-bottom:8px}
+.crit-name{font-size:13px;font-weight:700;margin-bottom:8px}
+.crit-inp{flex:1;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;padding:10px;font-size:20px;font-weight:800;color:var(--text);text-align:center;outline:none;font-family:'DM Mono',monospace}
+.crit-inp:focus{border-color:var(--ac)}
+.crit-total{background:var(--bg3);border-radius:10px;padding:12px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.crit-build-item{background:var(--bg3);border-radius:9px;padding:11px 12px;margin-bottom:8px;display:flex;gap:8px;align-items:center}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--bg3);color:var(--text);padding:10px 22px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;white-space:nowrap;box-shadow:var(--sh);border:1px solid var(--border);pointer-events:none}
 </style>
 </head>
 <body>
 
-<!-- ═══ HOME ═══ -->
-<div id="page-home">
+<div id="pg-home">
   <div class="topbar">
-    <div class="topbar-info">
-      <div class="topbar-title">📚 Sınıf Defteri</div>
-    </div>
-    <div class="topbar-actions">
-      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
-    </div>
+    <div class="tb-info"><div class="tb-title">📚 Sınıf Defteri</div></div>
+    <button class="theme-btn" onclick="toggleTheme()" id="tbtn1">🌙</button>
   </div>
-  <div class="home-header">
-    <div>
-      <div class="home-title">Sınıflarım</div>
-      <div class="home-sub" id="home-sub">Henüz sınıf yok</div>
-    </div>
+  <div class="home-hdr">
+    <div><div class="home-title">Sınıflarım</div><div class="home-sub" id="home-sub">Henüz sınıf yok</div></div>
   </div>
-  <button class="btn-new-class" onclick="showPage('page-addclass')">＋ Yeni Sınıf Oluştur</button>
-  <div id="class-list"></div>
+  <button class="btn-dashed" onclick="goPage('pg-addcls')">＋ Yeni Sınıf Oluştur</button>
+  <div id="cls-list"></div>
 </div>
 
-<!-- ═══ ADD CLASS ═══ -->
-<div id="page-addclass" class="hidden">
+<div id="pg-addcls" class="hidden">
   <div class="topbar">
-    <button class="topbar-back" onclick="showPage('page-home')">‹</button>
-    <div class="topbar-info"><div class="topbar-title">Yeni Sınıf</div></div>
+    <button class="tb-back" onclick="goPage('pg-home')">‹</button>
+    <div class="tb-info"><div class="tb-title">Yeni Sınıf</div></div>
   </div>
-  <div class="form-wrap">
-    <div class="field-group">
-      <label class="field-label">Sınıf Adı</label>
-      <input id="inp-classname" class="field-input" placeholder="Örn: 8-A, 7-B, 5-C...">
-      <div class="field-hint">Bu isim ana ekranda görünür</div>
-    </div>
-    <div class="field-group">
-      <label class="field-label">Sütun Sayısı</label>
-      <select id="inp-colcount" class="field-select" onchange="renderColBuilder()">
-        <option value="1">1 Sütun</option>
-        <option value="2">2 Sütun</option>
-        <option value="3" selected>3 Sütun</option>
-        <option value="4">4 Sütun</option>
-        <option value="5">5 Sütun</option>
-      </select>
-    </div>
-    <div class="section-label">Sütun Ayarları</div>
+  <div class="fw">
+    <label class="flabel">Sınıf Adı</label>
+    <input id="inp-cn" class="finput" placeholder="Örn: 8-A, 7-B...">
+    <label class="flabel">Sütun Sayısı</label>
+    <select id="inp-cc" class="fselect" onchange="buildCols()">
+      <option value="1">1</option><option value="2">2</option>
+      <option value="3" selected>3</option><option value="4">4</option><option value="5">5</option>
+    </select>
+    <div class="slabel">Sütun Ayarları</div>
     <div id="col-builder"></div>
-    <button class="btn-primary" onclick="createClass()">Sınıfı Oluştur</button>
-    <button class="btn-secondary" onclick="showPage('page-home')">İptal</button>
+    <button class="btn-p" onclick="createClass()">Sınıfı Oluştur</button>
+    <button class="btn-s" onclick="goPage('pg-home')">İptal</button>
   </div>
 </div>
 
-<!-- ═══ CRITERIA BUILDER (from col setup) ═══ -->
-<div id="page-criteria-builder" class="hidden">
+<div id="pg-crit-builder" class="hidden">
   <div class="topbar">
-    <button class="topbar-back" onclick="showPage('page-addclass')">‹</button>
-    <div class="topbar-info">
-      <div class="topbar-title">Kriterler</div>
-      <div class="topbar-sub" id="crit-builder-sub"></div>
-    </div>
+    <button class="tb-back" onclick="goPage('pg-addcls')">‹</button>
+    <div class="tb-info"><div class="tb-title">Kriterler</div><div class="tb-sub" id="cb-sub"></div></div>
   </div>
-  <div class="form-wrap">
-    <div class="field-hint" style="margin-bottom:12px">Her kritere isim ve maksimum puan girin. Toplam 100'ü geçemez.</div>
-    <div id="crit-builder-list"></div>
-    <button class="btn-secondary" onclick="addCritRow()" style="margin-bottom:16px">＋ Kriter Ekle</button>
-    <div id="crit-total-display" style="text-align:center;font-size:13px;color:var(--text2);margin-bottom:16px"></div>
-    <button class="btn-primary" onclick="saveCriteria()">Kriterleri Kaydet</button>
+  <div class="fw">
+    <div class="fhint" style="margin-bottom:12px">Kriter isimlerini girin. Ders sırasında her kritere serbestçe puan verilir, toplam 100'ü geçemez.</div>
+    <div id="crit-build-list"></div>
+    <button class="btn-s" onclick="addCritRow()">＋ Kriter Ekle</button>
+    <div id="crit-count" style="text-align:center;font-size:12px;color:var(--text2);margin-bottom:16px"></div>
+    <button class="btn-p" onclick="saveCritDef()">Kriterleri Kaydet</button>
   </div>
 </div>
 
-<!-- ═══ ADD STUDENT ═══ -->
-<div id="page-addstudent" class="hidden">
+<div id="pg-addstu" class="hidden">
   <div class="topbar">
-    <button class="topbar-back" onclick="showPage('page-class')">‹</button>
-    <div class="topbar-info">
-      <div class="topbar-title">Öğrenci Ekle</div>
-      <div class="topbar-sub" id="addstudent-sub"></div>
-    </div>
+    <button class="tb-back" onclick="goPage('pg-cls')">‹</button>
+    <div class="tb-info"><div class="tb-title">Öğrenci Ekle</div><div class="tb-sub" id="as-sub"></div></div>
   </div>
-  <div class="form-wrap">
-    <label class="excel-label">
-      📊 Excel Yükle (.xlsx)
-      <input type="file" accept=".xlsx,.xls" style="display:none" onchange="handleExcel(event)">
-    </label>
-    <div class="field-hint" style="text-align:center;margin-bottom:12px">Sütun sırası: No | İsim Soyisim</div>
+  <div class="fw">
+    <label class="excel-lbl">📊 Excel Yükle (.xlsx)<input type="file" accept=".xlsx,.xls" style="display:none" onchange="handleExcel(event)"></label>
+    <div class="fhint" style="text-align:center">Sütun sırası: No | İsim Soyisim</div>
     <div class="divider"></div>
-    <div class="section-label">Elle Ekle</div>
-    <div class="field-group">
-      <label class="field-label">Öğrenci No</label>
-      <input id="inp-no" class="field-input" placeholder="101" inputmode="numeric">
-    </div>
-    <div class="field-group">
-      <label class="field-label">İsim</label>
-      <input id="inp-name" class="field-input" placeholder="Öğrenci adı">
-    </div>
-    <div class="field-group">
-      <label class="field-label">Soyisim</label>
-      <input id="inp-surname" class="field-input" placeholder="Öğrenci soyadı">
-    </div>
-    <button class="btn-primary" onclick="addStudent()">＋ Öğrenci Ekle</button>
-    <button class="btn-secondary" onclick="showPage('page-class')">✓ Tamam, Sınıfa Dön</button>
-    <div id="added-list"></div>
+    <div class="slabel">Elle Ekle</div>
+    <label class="flabel">Öğrenci No</label>
+    <input id="inp-no" class="finput" placeholder="101" inputmode="numeric">
+    <label class="flabel">İsim</label>
+    <input id="inp-nm" class="finput" placeholder="Öğrenci adı">
+    <label class="flabel">Soyisim</label>
+    <input id="inp-sn" class="finput" placeholder="Öğrenci soyadı">
+    <button class="btn-p" onclick="addStudent()">＋ Öğrenci Ekle</button>
+    <button class="btn-s" onclick="goPage('pg-cls')">✓ Tamam</button>
+    <div id="stu-list"></div>
   </div>
 </div>
 
-<!-- ═══ CLASS VIEW ═══ -->
-<div id="page-class" class="hidden">
+<div id="pg-cls" class="hidden">
   <div class="topbar">
-    <button class="topbar-back" onclick="showPage('page-home')">‹</button>
-    <div class="topbar-info">
-      <div class="topbar-title" id="class-title"></div>
-      <div class="topbar-sub" id="class-sub"></div>
-    </div>
-    <div class="topbar-actions">
-      <button class="theme-btn" onclick="toggleTheme()" style="font-size:14px" id="theme-btn2">🌙</button>
-    </div>
+    <button class="tb-back" onclick="goPage('pg-home')">‹</button>
+    <div class="tb-info"><div class="tb-title" id="cls-title"></div><div class="tb-sub" id="cls-sub"></div></div>
+    <button class="theme-btn" onclick="toggleTheme()" id="tbtn2">🌙</button>
   </div>
   <div class="toolbar">
-    <button class="toolbar-btn" style="background:var(--accent-dim);color:var(--accent)" onclick="showPage('page-addstudent')">➕ Öğrenci</button>
-    <button class="toolbar-btn" style="background:var(--green-dim);color:var(--green)" onclick="newSession()">🔄 Yeni Ders</button>
-    <button class="toolbar-btn" style="background:var(--yellow-dim);color:var(--yellow)" onclick="openClassNote()">📝 Not</button>
-    <button class="toolbar-btn" style="background:var(--bg3);color:var(--text2)" onclick="exportExcel()">📤 Excel</button>
-    <button class="toolbar-btn" style="background:var(--red-dim);color:var(--red)" onclick="resetScores()">🗑 Sıfırla</button>
+    <button class="tb-btn" style="background:var(--ac-dim);color:var(--ac)" onclick="goPage('pg-addstu')">➕ Öğrenci</button>
+    <button class="tb-btn" style="background:var(--gr-dim);color:var(--gr)" onclick="newSession()">🔄 Ders</button>
+    <button class="tb-btn" style="background:var(--ye-dim);color:var(--ye)" onclick="openClsNote()">📝 Not</button>
+    <button class="tb-btn" style="background:var(--bg3);color:var(--text2)" onclick="doExport()">📤 Excel</button>
+    <button class="tb-btn" style="background:var(--re-dim);color:var(--re)" onclick="resetAll()">🗑</button>
   </div>
-  <div id="class-note-bar" class="class-note-bar hidden" onclick="openClassNote()">
-    <div class="class-note-bar-label">📝 Sınıf Notu</div>
-    <div class="class-note-bar-text" id="class-note-text"></div>
+  <div id="cls-note-bar" class="note-bar hidden" onclick="openClsNote()">
+    <div class="note-bar-lbl">📝 Sınıf Notu</div>
+    <div class="note-bar-txt" id="cls-note-txt"></div>
   </div>
-  <div id="class-empty" class="hidden empty-state">
-    <div class="empty-icon">👨‍🎓</div>
-    <div style="font-size:15px;margin-bottom:16px">Öğrenci eklenmedi</div>
-    <button class="btn-primary" style="width:auto;padding:11px 24px" onclick="showPage('page-addstudent')">＋ Öğrenci Ekle</button>
+  <div id="cls-empty" class="hidden empty">
+    <div style="font-size:44px">👨‍🎓</div>
+    <div style="margin-top:12px;font-size:15px;margin-bottom:16px">Öğrenci eklenmedi</div>
+    <button class="btn-p" style="width:auto;padding:11px 24px" onclick="goPage('pg-addstu')">＋ Ekle</button>
   </div>
-  <div class="table-wrap" id="table-wrap">
-    <table id="score-table">
-      <thead id="score-thead"><tr></tr></thead>
-      <tbody id="score-tbody"></tbody>
-    </table>
+  <div class="twrap" id="twrap">
+    <table><thead id="t-head"><tr></tr></thead><tbody id="t-body"></tbody></table>
   </div>
 </div>
 
-<!-- ═══ MODALS ═══ -->
-
-<!-- Note Modal -->
-<div id="note-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeModal('note-modal')">
-  <div class="modal-box">
-    <div class="modal-title" id="note-modal-title"></div>
-    <div class="modal-sub" id="note-modal-sub"></div>
-    <textarea class="note-textarea" id="note-textarea" placeholder="Notunuzu buraya yazın..."></textarea>
-    <div class="modal-btns">
-      <button onclick="closeModal('note-modal')" style="background:var(--bg3);color:var(--text)">İptal</button>
-      <button onclick="deleteNote()" style="background:var(--red-dim);color:var(--red)" id="btn-del-note">Sil</button>
-      <button onclick="saveNote()" style="background:var(--accent);color:white">Kaydet</button>
+<!-- NOTE MODAL -->
+<div id="m-note" class="overlay hidden" onclick="if(event.target===this)closeM('m-note')">
+  <div class="mbox">
+    <div class="mtitle" id="mn-title"></div>
+    <div class="msub" id="mn-sub"></div>
+    <textarea class="note-ta" id="mn-ta" placeholder="Notunuzu yazın..."></textarea>
+    <div class="mbtns">
+      <button onclick="closeM('m-note')" style="background:var(--bg3);color:var(--text)">İptal</button>
+      <button onclick="delNote()" id="mn-del" style="background:var(--re-dim);color:var(--re)">Sil</button>
+      <button onclick="saveNote()" style="background:var(--ac);color:#fff">Kaydet</button>
     </div>
   </div>
 </div>
 
-<!-- Manual Input Modal -->
-<div id="manual-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeModal('manual-modal')">
-  <div class="modal-box">
-    <div class="modal-title" id="manual-modal-title"></div>
-    <div class="modal-sub" id="manual-modal-sub"></div>
-    <input id="manual-input" class="manual-input-big" type="number" min="0" max="100" placeholder="0">
-    <div class="modal-btns">
-      <button onclick="closeModal('manual-modal')" style="background:var(--bg3);color:var(--text)">İptal</button>
-      <button onclick="clearManual()" style="background:var(--red-dim);color:var(--red)">Temizle</button>
-      <button onclick="saveManual()" style="background:var(--accent);color:white">Kaydet</button>
+<!-- MANUAL MODAL -->
+<div id="m-man" class="overlay hidden" onclick="if(event.target===this)closeM('m-man')">
+  <div class="mbox">
+    <div class="mtitle" id="mm-title"></div>
+    <div class="msub" id="mm-sub"></div>
+    <input id="mm-inp" class="big-input" type="number" min="0" max="100" placeholder="0">
+    <div class="mbtns">
+      <button onclick="closeM('m-man')" style="background:var(--bg3);color:var(--text)">İptal</button>
+      <button onclick="clearMan()" style="background:var(--re-dim);color:var(--re)">Temizle</button>
+      <button onclick="saveMan()" style="background:var(--ac);color:#fff">Kaydet</button>
     </div>
   </div>
 </div>
 
-<!-- Criteria Score Modal -->
-<div id="criteria-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeModal('criteria-modal')">
-  <div class="modal-box">
-    <div class="modal-title" id="criteria-modal-title"></div>
-    <div class="modal-sub" id="criteria-modal-sub"></div>
-    <div class="criteria-total-bar">
-      <span class="criteria-total-label">Toplam</span>
-      <span class="criteria-total-val" id="criteria-total-display">0 / 100</span>
+<!-- CRITERIA MODAL -->
+<div id="m-crit" class="overlay hidden" onclick="if(event.target===this)closeM('m-crit')">
+  <div class="mbox">
+    <div class="mtitle" id="mc-title"></div>
+    <div class="msub" id="mc-sub"></div>
+    <div class="crit-total">
+      <span style="font-size:12px;color:var(--text2)">Toplam</span>
+      <span id="mc-total" style="font-size:20px;font-weight:800;font-family:'DM Mono',monospace">0 / 100</span>
     </div>
-    <div id="criteria-inputs"></div>
-    <div class="modal-btns">
-      <button onclick="closeModal('criteria-modal')" style="background:var(--bg3);color:var(--text)">İptal</button>
-      <button onclick="saveCriteriaScore()" style="background:var(--accent);color:white">Kaydet</button>
+    <div id="mc-inputs"></div>
+    <div class="mbtns">
+      <button onclick="closeM('m-crit')" style="background:var(--bg3);color:var(--text)">İptal</button>
+      <button onclick="saveCritScore()" style="background:var(--ac);color:#fff">Kaydet</button>
     </div>
   </div>
 </div>
@@ -373,29 +239,26 @@ tr.odd{background:var(--bg)}
 <div class="toast hidden" id="toast"></div>
 
 <script>
-// ══════════════════════════════════════════
-// STATE
-// ══════════════════════════════════════════
-let classes = JSON.parse(localStorage.getItem('sd_v2') || '[]');
-let activeId = null;
-let noteTarget = null;
-let manualTarget = null;
-let criteriaTarget = null;
-let editingCriteriaColIdx = null; // which col we're building criteria for
+// ── STATE ──
+var classes = JSON.parse(localStorage.getItem('sd_v2') || '[]');
+var activeId = null;
+var noteTarget = null;
+var manTarget = null;
+var critTarget = null;
+var editCritColIdx = null;
+var tempCols = [];
+var tempCrit = [];
 
 function save() { localStorage.setItem('sd_v2', JSON.stringify(classes)); }
-function getActive() { return classes.find(c => c.id === activeId); }
-function updActive(fn) { classes = classes.map(c => c.id === activeId ? fn(c) : c); save(); }
+function getAct() { return classes.find(function(c){ return c.id === activeId; }); }
+function updAct(fn) { classes = classes.map(function(c){ return c.id === activeId ? fn(c) : c; }); save(); }
 
-// ══════════════════════════════════════════
-// THEME
-// ══════════════════════════════════════════
-let theme = localStorage.getItem('sd_theme') || 'dark';
+// ── THEME ──
+var theme = localStorage.getItem('sd_theme') || 'dark';
 function applyTheme() {
   document.documentElement.setAttribute('data-theme', theme);
-  const icon = theme === 'dark' ? '☀️' : '🌙';
-  document.querySelectorAll('.theme-btn').forEach(b => b.textContent = icon);
-  document.querySelector('meta[name="theme-color"]').setAttribute('content', theme === 'dark' ? '#0d1117' : '#f6f8fa');
+  var icon = theme === 'dark' ? '☀️' : '🌙';
+  document.querySelectorAll('.theme-btn').forEach(function(b){ b.textContent = icon; });
 }
 function toggleTheme() {
   theme = theme === 'dark' ? 'light' : 'dark';
@@ -404,173 +267,154 @@ function toggleTheme() {
 }
 applyTheme();
 
-// ══════════════════════════════════════════
-// NAVIGATION
-// ══════════════════════════════════════════
-function showPage(id) {
-  document.querySelectorAll('[id^="page-"]').forEach(el => el.classList.add('hidden'));
+// ── NAV ──
+function goPage(id) {
+  document.querySelectorAll('[id^="pg-"]').forEach(function(el){ el.classList.add('hidden'); });
   document.getElementById(id).classList.remove('hidden');
-  if (id === 'page-home') renderHome();
-  if (id === 'page-class') renderClass();
-  if (id === 'page-addstudent') renderAddedList();
-  if (id === 'page-addclass') renderColBuilder();
+  if (id === 'pg-home') renderHome();
+  if (id === 'pg-cls') renderCls();
+  if (id === 'pg-addstu') renderStuList();
+  if (id === 'pg-addcls') buildCols();
   window.scrollTo(0, 0);
 }
 
-// ══════════════════════════════════════════
-// TOAST
-// ══════════════════════════════════════════
-let toastTimer;
+// ── TOAST ──
+var toastT;
 function showToast(msg) {
-  const t = document.getElementById('toast');
+  var t = document.getElementById('toast');
   t.textContent = msg; t.classList.remove('hidden');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.add('hidden'), 2400);
+  clearTimeout(toastT);
+  toastT = setTimeout(function(){ t.classList.add('hidden'); }, 2400);
 }
 
-// ══════════════════════════════════════════
-// HOME
-// ══════════════════════════════════════════
+// ── HOME ──
 function renderHome() {
-  const list = document.getElementById('class-list');
-  const sub = document.getElementById('home-sub');
+  var list = document.getElementById('cls-list');
+  var sub = document.getElementById('home-sub');
   sub.textContent = classes.length === 0 ? 'Henüz sınıf yok' : classes.length + ' sınıf';
   if (classes.length === 0) {
-    list.innerHTML = '<div class="empty-state"><div class="empty-icon">🏫</div><div>Yeni sınıf oluşturun</div></div>';
+    list.innerHTML = '<div class="empty"><div style="font-size:52px">🏫</div><div style="margin-top:12px">Yeni sınıf oluşturun</div></div>';
     return;
   }
-  list.innerHTML = classes.map(cls => `
-    <div class="class-card" onclick="openClass(${cls.id})">
-      <div style="flex:1;min-width:0">
-        <div class="class-card-name">${cls.name}${cls.note ? ' <span style="font-size:13px">📝</span>' : ''}</div>
-        <div class="class-card-meta">${cls.students.length} öğrenci · Ders ${cls.session} · ${cls.columns.length} sütun</div>
-      </div>
-      <div class="class-card-right">
-        <span style="color:var(--text2);font-size:20px">›</span>
-        <button class="btn-icon btn-icon-red" onclick="event.stopPropagation();deleteClass(${cls.id})">🗑</button>
-      </div>
-    </div>
-  `).join('');
+  list.innerHTML = classes.map(function(cls) {
+    return '<div class="cls-card" onclick="openCls(' + cls.id + ')">' +
+      '<div style="flex:1;min-width:0">' +
+        '<div class="cls-name">' + cls.name + (cls.note ? ' 📝' : '') + '</div>' +
+        '<div class="cls-meta">' + cls.students.length + ' öğrenci · Ders ' + cls.session + ' · ' + cls.columns.length + ' sütun</div>' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;align-items:center">' +
+        '<span style="color:var(--ac);font-size:20px">›</span>' +
+        '<button class="btn-del" onclick="event.stopPropagation();delCls(' + cls.id + ')">🗑</button>' +
+      '</div></div>';
+  }).join('');
 }
 
-function openClass(id) { activeId = id; showPage('page-class'); }
+function openCls(id) { activeId = id; goPage('pg-cls'); }
 
-function deleteClass(id) {
-  const cls = classes.find(c => c.id === id);
+function delCls(id) {
+  var cls = classes.find(function(c){ return c.id === id; });
   if (!confirm('"' + cls.name + '" silinsin mi?')) return;
-  classes = classes.filter(c => c.id !== id); save(); renderHome();
-  showToast('Sınıf silindi');
+  classes = classes.filter(function(c){ return c.id !== id; });
+  save(); renderHome(); showToast('Sınıf silindi');
 }
 
-// ══════════════════════════════════════════
-// COLUMN BUILDER (for new class)
-// ══════════════════════════════════════════
-const COL_TYPES = [
-  { id: 'counter',            label: 'Sayaç 1',           preview: previewCounter },
-  { id: 'dual',               label: 'Sayaç 2',        preview: previewDual },
-  { id: 'manual',             label: 'Manuel',          preview: previewManual },
-  { id: 'counter_manual',     label: 'Sayaç 1 + Manuel',  preview: previewCounterManual },
-  { id: 'dual_manual',        label: 'Sayaç 2 + Manuel', preview: previewDualManual },
-  { id: 'counter_dual_manual',label: 'S1 + S2 + Manuel',       preview: previewFullKarma },
+// ── COLUMN TYPE PREVIEWS (plain string concat, no template literals) ──
+var COL_TYPES = [
+  { id: 'counter',             label: 'Sayaç 1' },
+  { id: 'dual',                label: 'Sayaç 2' },
+  { id: 'manual',              label: 'Manuel' },
+  { id: 'counter_manual',      label: 'Sayaç 1\n+ Manuel' },
+  { id: 'dual_manual',         label: 'Sayaç 2\n+ Manuel' },
+  { id: 'counter_dual_manual', label: 'S1+S2\n+ Manuel' }
 ];
+var COL_HINTS = ['Konuşma', 'Katılım', 'Davranış', 'Sınav', 'Ödev'];
 
-function miniBtn(color, bg, label) {
-  return `<div style="width:28px;height:28px;border-radius:6px;background:${bg};color:${color};display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900">${label}</div>`;
-}
-function miniVal(v, color) {
-  return `<span style="font-weight:800;font-size:13px;color:${color};min-width:24px;text-align:center;font-family:monospace">${v}</span>`;
-}
-function miniScore(v) {
-  return `<span style="font-weight:800;font-size:13px;color:var(--accent);background:var(--bg3);border-radius:6px;padding:2px 7px;font-family:monospace">${v}</span>`;
+function pBtn(color, bg) {
+  return '<div style="width:26px;height:26px;border-radius:6px;background:' + bg + ';display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:' + color + '">+</div>' +
+         '<div style="width:26px;height:26px;border-radius:6px;background:' + bg.replace('gr','re') + ';display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:' + color.replace('gr','re') + '">−</div>';
 }
 
-function previewCounter() {
-  return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px">
-    ${miniVal('+2','var(--green)')}
-    <div style="display:flex;gap:4px">${miniBtn('var(--green)','var(--green-dim)','+')}${miniBtn('var(--red)','var(--red-dim)','−')}</div>
-  </div>`;
+function pRow(btns) {
+  return '<div style="display:flex;gap:3px">' + btns + '</div>';
 }
-function previewDual() {
-  return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px">
-    <div style="display:flex;gap:4px;align-items:center">${miniVal('+3','var(--green)')}<span style="color:var(--text2);font-size:12px">/</span>${miniVal('−1','var(--red)')}</div>
-    <div style="display:flex;gap:4px">${miniBtn('var(--green)','var(--green-dim)','+')}${miniBtn('var(--red)','var(--red-dim)','−')}</div>
-  </div>`;
-}
-function previewManual() {
-  return `<div style="display:flex;flex-direction:column;align-items:center;gap:6px">
-    ${miniScore('85/100')}
-    <span style="font-size:10px;color:var(--text2)">tıkla → gir</span>
-  </div>`;
-}
-function previewCounterManual() {
-  return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px">
-    ${miniVal('+2','var(--green)')}
-    <div style="display:flex;gap:4px">${miniBtn('var(--green)','var(--green-dim)','+')}${miniBtn('var(--red)','var(--red-dim)','−')}</div>
-    ${miniScore('75/100')}
-  </div>`;
-}
-function previewDualManual() {
-  return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px">
-    <div style="display:flex;gap:3px">${miniVal('+2','var(--green)')}<span style="color:var(--text2)">/</span>${miniVal('−1','var(--red)')}</div>
-    <div style="display:flex;gap:4px">${miniBtn('var(--green)','var(--green-dim)','+')}${miniBtn('var(--red)','var(--red-dim)','−')}</div>
-    ${miniScore('85/100')}
-  </div>`;
-}
-function previewFullKarma() {
-  return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px">
-    ${miniVal('+1','var(--green)')}
-    <div style="display:flex;gap:3px">${miniBtn('var(--green)','var(--green-dim)','+')}${miniBtn('var(--red)','var(--red-dim)','−')}</div>
-    <div style="display:flex;gap:3px">${miniVal('+2','var(--green)')}<span style="color:var(--text2);font-size:11px">/</span>${miniVal('−1','var(--red)')}</div>
-    <div style="display:flex;gap:3px">${miniBtn('var(--green)','var(--green-dim)','+')}${miniBtn('var(--red)','var(--red-dim)','−')}</div>
-    ${miniScore('80/100')}
-  </div>`;
-}
-const COL_HINTS = ['Konuşma', 'Katılım', 'Davranış', 'Sınav', 'Ödev'];
 
-// tempCols holds config while building
-let tempCols = [];
+function pVal(v, c) {
+  return '<span style="font-weight:800;font-size:13px;color:' + c + ';min-width:22px;text-align:center;font-family:monospace">' + v + '</span>';
+}
 
-function renderColBuilder() {
-  const n = parseInt(document.getElementById('inp-colcount').value);
-  // preserve existing
+function pScore() {
+  return '<span style="font-weight:800;font-size:12px;color:var(--ac);background:var(--bg3);border-radius:5px;padding:2px 6px;font-family:monospace">85/100</span>';
+}
+
+function colPreview(typeId) {
+  var btns = pRow(
+    '<div style="width:26px;height:26px;border-radius:6px;background:var(--gr-dim);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:var(--gr)">+</div>' +
+    '<div style="width:26px;height:26px;border-radius:6px;background:var(--re-dim);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:var(--re)">−</div>'
+  );
+  var v1 = pVal('+2', 'var(--gr)');
+  var v2 = pVal('+3', 'var(--gr)');
+  var v3 = pVal('−1', 'var(--re)');
+  var sep = '<span style="color:var(--text2);font-size:11px"> / </span>';
+  var sc = pScore();
+  var wrap = '<div style="display:flex;flex-direction:column;align-items:center;gap:3px">';
+
+  if (typeId === 'counter')             return wrap + v1 + btns + '</div>';
+  if (typeId === 'dual')                return wrap + '<div style="display:flex;align-items:center">' + v2 + sep + v3 + '</div>' + btns + '</div>';
+  if (typeId === 'manual')              return wrap + sc + '<span style="font-size:10px;color:var(--text2)">tıkla→gir</span></div>';
+  if (typeId === 'counter_manual')      return wrap + v1 + btns + sc + '</div>';
+  if (typeId === 'dual_manual')         return wrap + '<div style="display:flex;align-items:center">' + v2 + sep + v3 + '</div>' + btns + sc + '</div>';
+  if (typeId === 'counter_dual_manual') return wrap + v1 + btns + '<div style="display:flex;align-items:center">' + v2 + sep + v3 + '</div>' + btns + sc + '</div>';
+  return '';
+}
+
+// ── COLUMN BUILDER ──
+function buildCols() {
+  var n = parseInt(document.getElementById('inp-cc').value);
   while (tempCols.length < n) tempCols.push({ name: COL_HINTS[tempCols.length] || 'Sütun', type: 'counter', criteria: [] });
   tempCols = tempCols.slice(0, n);
+  renderColBuilder();
+}
 
-  document.getElementById('col-builder').innerHTML = tempCols.map((col, i) => `
-    <div class="col-card">
-      <div class="col-card-header">
-        <span class="col-card-num">Sütun ${i+1}</span>
-      </div>
-      <div class="field-group" style="margin-bottom:8px">
-        <label class="field-label">Sütun Adı</label>
-        <input class="field-input" value="${col.name}" oninput="tempCols[${i}].name=this.value" placeholder="${COL_HINTS[i]||'Sütun adı'}">
-      </div>
-      <div class="field-label" style="margin-bottom:8px">Notlama Tipi</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
-        ${COL_TYPES.map(t => `
-          <div onclick="setColType(${i},'${t.id}')" style="border:2px solid ${col.type===t.id?'var(--accent)':'var(--border)'};border-radius:10px;background:${col.type===t.id?'var(--accent-dim)':'var(--bg3)'};padding:8px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .15s">
-            <div style="font-size:10px;font-weight:700;color:${col.type===t.id?'var(--accent)':'var(--text2)'};text-align:center;min-height:24px;display:flex;align-items:center">${t.label}</div>
-            <div style="pointer-events:none">${t.preview()}</div>
-          </div>
-        `).join('')}
-      </div>
-      ${hasManual(col.type) ? `
-        <button class="btn-add-criteria" onclick="openCriteriaBuilder(${i})">
-          📊 ${col.criteria && col.criteria.length > 0 ? col.criteria.length + ' kriter tanımlı — düzenle' : 'Kriter Ekle (opsiyonel)'}
-        </button>
-        ${col.criteria && col.criteria.length > 0 ? `
-          <div class="criteria-preview">
-            ${col.criteria.map(cr => `${cr.name}: ${cr.max}p`).join(' · ')} 
-            = Toplam ${col.criteria.reduce((s,c)=>s+Number(c.max),0)}p
-          </div>
-        ` : ''}
-      ` : ''}
-    </div>
-  `).join('');
+function renderColBuilder() {
+  var html = '';
+  for (var i = 0; i < tempCols.length; i++) {
+    var col = tempCols[i];
+    html += '<div class="col-card">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">' +
+        '<span class="col-num">Sütun ' + (i+1) + '</span>' +
+      '</div>' +
+      '<label class="flabel">Sütun Adı</label>' +
+      '<input class="finput" value="' + col.name + '" oninput="tempCols[' + i + '].name=this.value" placeholder="' + (COL_HINTS[i]||'Sütun adı') + '">' +
+      '<label class="flabel" style="margin-bottom:8px">Notlama Tipi</label>' +
+      '<div class="type-grid">' + renderTypeCards(i, col.type) + '</div>';
+    if (hasManual(col.type)) {
+      html += '<button class="btn-crit" onclick="openCritBuilder(' + i + ')">📊 ' +
+        (col.criteria && col.criteria.length > 0 ? col.criteria.length + ' kriter — düzenle' : 'Kriter Ekle (opsiyonel)') +
+        '</button>';
+      if (col.criteria && col.criteria.length > 0) {
+        html += '<div class="crit-preview">' + col.criteria.map(function(c){ return c.name; }).join(' · ') + '</div>';
+      }
+    }
+    html += '</div>';
+  }
+  document.getElementById('col-builder').innerHTML = html;
+}
+
+function renderTypeCards(colIdx, activeType) {
+  var html = '';
+  for (var j = 0; j < COL_TYPES.length; j++) {
+    var t = COL_TYPES[j];
+    var isAct = t.id === activeType;
+    html += '<div class="type-card' + (isAct ? ' active' : '') + '" onclick="setColType(' + colIdx + ',\'' + t.id + '\')">' +
+      '<div class="type-label">' + t.label.replace('\n', '<br>') + '</div>' +
+      '<div style="pointer-events:none">' + colPreview(t.id) + '</div>' +
+      '</div>';
+  }
+  return html;
 }
 
 function hasManual(type) {
-  return ['manual','counter_manual','dual_manual','counter_dual_manual'].includes(type);
+  return type === 'manual' || type === 'counter_manual' || type === 'dual_manual' || type === 'counter_dual_manual';
 }
 
 function setColType(i, type) {
@@ -579,596 +423,530 @@ function setColType(i, type) {
   renderColBuilder();
 }
 
-// ── CRITERIA BUILDER ──
-let tempCriteria = [];
-
-function openCriteriaBuilder(colIdx) {
-  editingCriteriaColIdx = colIdx;
-  const col = tempCols[colIdx];
-  tempCriteria = col.criteria && col.criteria.length > 0
+// ── CRITERIA DEFINITION ──
+function openCritBuilder(colIdx) {
+  editCritColIdx = colIdx;
+  var col = tempCols[colIdx];
+  tempCrit = col.criteria && col.criteria.length > 0
     ? JSON.parse(JSON.stringify(col.criteria))
-    : [{ name: 'Kriter 1', max: 20 }];
-  document.getElementById('crit-builder-sub').textContent = col.name + ' sütunu için';
+    : [{ name: 'Kriter 1' }];
+  document.getElementById('cb-sub').textContent = col.name + ' sütunu';
   renderCritBuilder();
-  showPage('page-criteria-builder');
+  goPage('pg-crit-builder');
 }
 
 function renderCritBuilder() {
-  document.getElementById('crit-builder-list').innerHTML = tempCriteria.map((cr, i) => {
-    const otherSum = tempCriteria.reduce((s, c, j) => j !== i ? s + Number(c.max || 0) : s, 0);
-    const maxAllowed = Math.max(1, 100 - otherSum);
-    return `
-    <div class="crit-item">
-      <input class="field-input crit-name-input" value="${cr.name}" oninput="tempCriteria[${i}].name=this.value" placeholder="Kriter adı">
-      <div style="display:flex;align-items:center;gap:4px">
-        <input class="field-input crit-max-input" type="number" min="1" max="${maxAllowed}" value="${cr.max}"
-          oninput="tempCriteria[${i}].max=Math.min(${maxAllowed},Math.max(1,Number(this.value)||1));this.value=tempCriteria[${i}].max;updateCritTotal()"
-          placeholder="Max">
-        <span style="font-size:11px;color:var(--text2);white-space:nowrap">/ ${maxAllowed}</span>
-      </div>
-      <button onclick="removeCritRow(${i})" style="background:var(--red-dim);border:none;border-radius:8px;color:var(--red);padding:8px 10px;font-weight:700">✕</button>
-    </div>`;
-  }).join('');
-  updateCritTotal();
-}
-
-function updateCritTotal() {
-  const used = tempCriteria.reduce((s, c) => s + Number(c.max || 0), 0);
-  const remaining = 100 - used;
-  const el = document.getElementById('crit-total-display');
-  el.textContent = 'Toplam: ' + used + ' / 100' + (remaining > 0 ? ' (kalan: ' + remaining + ')' : '');
-  el.style.color = used > 100 ? 'var(--red)' : used === 100 ? 'var(--green)' : 'var(--text2)';
+  var html = '';
+  for (var i = 0; i < tempCrit.length; i++) {
+    html += '<div class="crit-build-item">' +
+      '<span class="sbadge">' + (i+1) + '</span>' +
+      '<input class="finput" style="margin-bottom:0;flex:1" value="' + tempCrit[i].name + '" ' +
+        'oninput="tempCrit[' + i + '].name=this.value" placeholder="Kriter adı">' +
+      '<button onclick="removeCrit(' + i + ')" style="background:var(--re-dim);border:none;border-radius:8px;color:var(--re);padding:8px 10px;font-weight:700;flex-shrink:0">✕</button>' +
+      '</div>';
+  }
+  document.getElementById('crit-build-list').innerHTML = html;
+  document.getElementById('crit-count').textContent = tempCrit.length + ' kriter · ders sırasında toplam max 100 puan';
 }
 
 function addCritRow() {
-  const used = tempCriteria.reduce((s, c) => s + Number(c.max || 0), 0);
-  const rem = 100 - used;
-  if (rem <= 0) { showToast('Toplam zaten 100! Önce bir kriteri azaltın.'); return; }
-  tempCriteria.push({ name: 'Kriter ' + (tempCriteria.length + 1), max: Math.min(rem, 20) });
+  tempCrit.push({ name: 'Kriter ' + (tempCrit.length + 1) });
   renderCritBuilder();
 }
 
-function removeCritRow(i) {
-  tempCriteria.splice(i, 1);
+function removeCrit(i) {
+  tempCrit.splice(i, 1);
   renderCritBuilder();
 }
 
-function saveCriteria() {
-  const used = tempCriteria.reduce((s, c) => s + Number(c.max || 0), 0);
-  if (used > 100) { showToast('Toplam 100\'ü geçemez!'); return; }
-  if (tempCriteria.some(c => !c.name.trim())) { showToast('Tüm kriter isimlerini doldurun'); return; }
-  tempCols[editingCriteriaColIdx].criteria = JSON.parse(JSON.stringify(tempCriteria));
-  showPage('page-addclass');
+function saveCritDef() {
+  if (tempCrit.length === 0) { showToast('En az 1 kriter girin'); return; }
+  if (tempCrit.some(function(c){ return !c.name.trim(); })) { showToast('Tüm kriter isimlerini doldurun'); return; }
+  tempCols[editCritColIdx].criteria = JSON.parse(JSON.stringify(tempCrit));
+  goPage('pg-addcls');
   showToast('Kriterler kaydedildi ✓');
 }
 
-// ══════════════════════════════════════════
-// CREATE CLASS
-// ══════════════════════════════════════════
+// ── CREATE CLASS ──
+function newStuScores(columns) {
+  var scores = {};
+  for (var i = 0; i < columns.length; i++) {
+    var col = columns[i];
+    scores['c' + i] = {
+      counter: 0, dualPos: 0, dualNeg: 0, manual: null,
+      critScores: col.criteria ? col.criteria.map(function(){ return null; }) : []
+    };
+  }
+  return scores;
+}
+
 function createClass() {
-  const name = document.getElementById('inp-classname').value.trim();
+  var name = document.getElementById('inp-cn').value.trim();
   if (!name) { showToast('Sınıf adı girin'); return; }
-  const cls = {
-    id: Date.now(),
-    name,
-    columns: JSON.parse(JSON.stringify(tempCols)),
-    students: [],
-    session: 1,
-    note: ''
-  };
+  var cls = { id: Date.now(), name: name, columns: JSON.parse(JSON.stringify(tempCols)), students: [], session: 1, note: '' };
   classes.push(cls); save();
   tempCols = [];
-  document.getElementById('inp-classname').value = '';
-  document.getElementById('inp-colcount').value = '3';
+  document.getElementById('inp-cn').value = '';
+  document.getElementById('inp-cc').value = '3';
   showToast('"' + name + '" oluşturuldu ✓');
-  showPage('page-home');
+  goPage('pg-home');
 }
 
-// ══════════════════════════════════════════
-// STUDENTS
-// ══════════════════════════════════════════
-function newStudentData(name, surname, no, columns) {
-  const scores = {};
-  columns.forEach((col, i) => {
-    scores['c' + i] = {
-      counter: 0,
-      dualPos: 0,
-      dualNeg: 0,
-      manual: null,
-      criteriaScores: col.criteria ? col.criteria.map(() => null) : []
-    };
-  });
-  return { id: String(Date.now() + Math.random()), name, surname, no, scores, note: '' };
-}
-
-function renderAddedList() {
-  const cls = getActive(); if (!cls) return;
-  document.getElementById('addstudent-sub').textContent = cls.name;
-  const sorted = [...cls.students].sort((a,b)=>sortNo(a,b));
-  document.getElementById('added-list').innerHTML = sorted.length === 0 ? '' : `
-    <div class="student-list" style="margin-top:20px;background:var(--bg2);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border)">
-      <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase">Eklendi (${sorted.length})</div>
-      ${sorted.map(s => `
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border)">
-          <div style="display:flex;gap:8px;align-items:center">
-            <span style="background:var(--accent-dim);color:var(--accent);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:800">${s.no||'—'}</span>
-            <span style="font-size:13px;font-weight:600">${s.name} ${s.surname}</span>
-          </div>
-          <button onclick="removeStudent('${s.id}')" style="background:var(--red-dim);border:none;border-radius:6px;color:var(--red);padding:4px 10px;font-size:13px;cursor:pointer">✕</button>
-        </div>
-      `).join('')}
-    </div>`;
+// ── STUDENTS ──
+function renderStuList() {
+  var cls = getAct(); if (!cls) return;
+  document.getElementById('as-sub').textContent = cls.name;
+  var sorted = cls.students.slice().sort(sortNo);
+  if (sorted.length === 0) { document.getElementById('stu-list').innerHTML = ''; return; }
+  var html = '<div class="slist"><div class="slist-hdr">Eklendi (' + sorted.length + ')</div>';
+  for (var i = 0; i < sorted.length; i++) {
+    var s = sorted[i];
+    html += '<div class="srow">' +
+      '<div style="display:flex;gap:8px;align-items:center">' +
+        '<span class="sbadge">' + (s.no||'—') + '</span>' +
+        '<span style="font-size:13px;font-weight:600">' + s.name + ' ' + s.surname + '</span>' +
+      '</div>' +
+      '<button onclick="removeStu(\'' + s.id + '\')" style="background:var(--re-dim);border:none;border-radius:6px;color:var(--re);padding:4px 10px;font-size:13px;cursor:pointer">✕</button>' +
+      '</div>';
+  }
+  html += '</div>';
+  document.getElementById('stu-list').innerHTML = html;
 }
 
 function addStudent() {
-  const cls = getActive(); if (!cls) return;
-  const no = document.getElementById('inp-no').value.trim();
-  const name = document.getElementById('inp-name').value.trim(); if (!name) return;
-  const surname = document.getElementById('inp-surname').value.trim();
-  updActive(c => ({...c, students:[...c.students, newStudentData(name, surname, no, c.columns)]}));
-  document.getElementById('inp-no').value='';
-  document.getElementById('inp-name').value='';
-  document.getElementById('inp-surname').value='';
+  var cls = getAct(); if (!cls) return;
+  var no = document.getElementById('inp-no').value.trim();
+  var name = document.getElementById('inp-nm').value.trim(); if (!name) return;
+  var surname = document.getElementById('inp-sn').value.trim();
+  var s = { id: String(Date.now() + Math.random()), name: name, surname: surname, no: no, scores: newStuScores(cls.columns), note: '' };
+  updAct(function(c){ return Object.assign({}, c, { students: c.students.concat([s]) }); });
+  document.getElementById('inp-no').value = '';
+  document.getElementById('inp-nm').value = '';
+  document.getElementById('inp-sn').value = '';
   document.getElementById('inp-no').focus();
   showToast(name + ' ' + surname + ' eklendi');
-  renderAddedList();
+  renderStuList();
 }
 
-function removeStudent(sid) {
-  updActive(c => ({...c, students: c.students.filter(s => s.id !== sid)}));
-  renderAddedList();
+function removeStu(sid) {
+  updAct(function(c){ return Object.assign({}, c, { students: c.students.filter(function(s){ return s.id !== sid; }) }); });
+  renderStuList();
 }
 
 function handleExcel(e) {
-  const file = e.target.files[0]; if (!file) return;
-  const cls = getActive(); if (!cls) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
+  var file = e.target.files[0]; if (!file) return;
+  var cls = getAct(); if (!cls) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
     try {
-      const wb = XLSX.read(ev.target.result, {type:'array'});
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
-      const firstVal = String(rows[0]?.[0]||'').trim();
-      const startRow = isNaN(firstVal) || firstVal==='' ? 1 : 0;
-      const added = [];
-      for (let i = startRow; i < rows.length; i++) {
-        const no = String(rows[i][0]||'').trim();
-        const fullName = String(rows[i][1]||'').trim();
+      var wb = XLSX.read(ev.target.result, { type: 'array' });
+      var ws = wb.Sheets[wb.SheetNames[0]];
+      var rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+      var firstVal = String(rows[0] && rows[0][0] || '').trim();
+      var startRow = isNaN(firstVal) || firstVal === '' ? 1 : 0;
+      var added = [];
+      for (var i = startRow; i < rows.length; i++) {
+        var no = String(rows[i][0] || '').trim();
+        var fullName = String(rows[i][1] || '').trim();
         if (!fullName) continue;
-        const parts = fullName.split(/\s+/);
-        const surname = parts.length > 1 ? parts[parts.length-1] : '';
-        const name = parts.length > 1 ? parts.slice(0,-1).join(' ') : parts[0];
-        added.push(newStudentData(name, surname, no, cls.columns));
+        var parts = fullName.split(/\s+/);
+        var surname = parts.length > 1 ? parts[parts.length - 1] : '';
+        var name = parts.length > 1 ? parts.slice(0, -1).join(' ') : parts[0];
+        added.push({ id: String(Date.now() + Math.random()), name: name, surname: surname, no: no, scores: newStuScores(cls.columns), note: '' });
       }
       if (added.length === 0) { showToast('Öğrenci bulunamadı!'); return; }
-      updActive(c => ({...c, students:[...c.students, ...added]}));
+      updAct(function(c){ return Object.assign({}, c, { students: c.students.concat(added) }); });
       showToast(added.length + ' öğrenci yüklendi ✓');
-      renderAddedList();
+      renderStuList();
     } catch(err) { showToast('Dosya okunamadı!'); }
   };
   reader.readAsArrayBuffer(file);
-  e.target.value='';
+  e.target.value = '';
 }
 
-// ══════════════════════════════════════════
-// CLASS VIEW
-// ══════════════════════════════════════════
-function sortNo(a, b) { return (a.no||'9999').localeCompare(b.no||'9999', undefined, {numeric:true}); }
+// ── CLASS VIEW ──
+function sortNo(a, b) { return (a.no || '9999').localeCompare(b.no || '9999', undefined, { numeric: true }); }
 
-function renderClass() {
-  const cls = getActive(); if (!cls) return;
-  document.getElementById('class-title').textContent = cls.name;
-  document.getElementById('class-sub').textContent = 'Ders ' + cls.session + ' · ' + cls.students.length + ' öğrenci';
-
-  // Class note
-  const noteBar = document.getElementById('class-note-bar');
+function renderCls() {
+  var cls = getAct(); if (!cls) return;
+  document.getElementById('cls-title').textContent = cls.name;
+  document.getElementById('cls-sub').textContent = 'Ders ' + cls.session + ' · ' + cls.students.length + ' öğrenci';
+  var nb = document.getElementById('cls-note-bar');
   if (cls.note && cls.note.trim()) {
-    document.getElementById('class-note-text').textContent = cls.note;
-    noteBar.classList.remove('hidden');
-  } else { noteBar.classList.add('hidden'); }
+    document.getElementById('cls-note-txt').textContent = cls.note;
+    nb.classList.remove('hidden');
+  } else { nb.classList.add('hidden'); }
 
-  if (cls.students.length === 0) {
-    document.getElementById('class-empty').classList.remove('hidden');
-    document.getElementById('table-wrap').classList.add('hidden');
+  var sorted = cls.students.slice().sort(sortNo);
+  if (sorted.length === 0) {
+    document.getElementById('cls-empty').classList.remove('hidden');
+    document.getElementById('twrap').classList.add('hidden');
     return;
   }
-  document.getElementById('class-empty').classList.add('hidden');
-  document.getElementById('table-wrap').classList.remove('hidden');
+  document.getElementById('cls-empty').classList.add('hidden');
+  document.getElementById('twrap').classList.remove('hidden');
 
-  // Header
-  document.getElementById('score-thead').innerHTML = `<tr>
-    <th class="left" style="width:32px">No</th>
-    <th class="left" style="min-width:80px">İsim</th>
-    ${cls.columns.map(col => `<th style="min-width:${colMinWidth(col)}px">${col.name}</th>`).join('')}
-  </tr>`;
+  var thHtml = '<th class="l" style="width:32px">No</th><th class="l" style="min-width:80px">İsim</th>';
+  for (var ci = 0; ci < cls.columns.length; ci++) {
+    thHtml += '<th style="min-width:' + colWidth(cls.columns[ci]) + 'px">' + cls.columns[ci].name + '</th>';
+  }
+  document.getElementById('t-head').innerHTML = '<tr>' + thHtml + '</tr>';
 
-  const sorted = [...cls.students].sort(sortNo);
-  document.getElementById('score-tbody').innerHTML = sorted.map((s, i) => `
-    <tr class="${i%2===0?'even':'odd'}">
-      <td style="font-size:10px;color:var(--text2);font-weight:700">${s.no||''}</td>
-      <td class="left name-cell" onclick="openStudentNote('${s.id}')">
-        <div style="font-size:12px;font-weight:700">${s.name}${s.note&&s.note.trim()?'<span class="note-dot"></span>':''}</div>
-        <div style="font-size:10px;color:var(--text2)">${s.surname}</div>
-      </td>
-      ${cls.columns.map((col, ci) => `<td>${renderCell(s, ci, col)}</td>`).join('')}
-    </tr>
-  `).join('');
+  var bodyHtml = '';
+  for (var i = 0; i < sorted.length; i++) {
+    var s = sorted[i];
+    bodyHtml += '<tr class="' + (i % 2 === 0 ? 'ev' : 'od') + '">' +
+      '<td style="font-size:10px;color:var(--text2);font-weight:700">' + (s.no || '') + '</td>' +
+      '<td class="l" onclick="openStuNote(\'' + s.id + '\')" style="cursor:pointer">' +
+        '<div style="font-size:12px;font-weight:700">' + s.name + (s.note && s.note.trim() ? '<span class="ndot"></span>' : '') + '</div>' +
+        '<div style="font-size:10px;color:var(--text2)">' + s.surname + '</div>' +
+      '</td>';
+    for (var ci2 = 0; ci2 < cls.columns.length; ci2++) {
+      bodyHtml += '<td>' + renderCell(s, ci2, cls.columns[ci2]) + '</td>';
+    }
+    bodyHtml += '</tr>';
+  }
+  document.getElementById('t-body').innerHTML = bodyHtml;
 }
 
-function colMinWidth(col) {
+function colWidth(col) {
   if (col.type === 'counter_dual_manual') return 140;
-  if (col.type.includes('manual') && col.type.includes('counter')) return 120;
+  if (col.type === 'counter_manual' || col.type === 'dual_manual') return 110;
   if (col.type === 'dual') return 110;
   return 90;
 }
 
 function renderCell(s, ci, col) {
-  const sc = s.scores['c' + ci] || {};
-  const type = col.type;
-  let parts = [];
+  var sc = s.scores['c' + ci] || {};
+  var type = col.type;
+  var parts = [];
 
-  // Counter part
-  if (type.includes('counter') && !type.includes('dual_manual') || type === 'counter' || type === 'counter_manual') {
-    const v = sc.counter || 0;
-    const color = v > 0 ? 'var(--green)' : v < 0 ? 'var(--red)' : 'var(--text2)';
-    if (type === 'counter' || type === 'counter_manual') {
-      parts.push(`
-        <div class="cell-counter">
-          <span class="cell-val" style="color:${color}" id="cv-${s.id}-${ci}">${v>0?'+':''}${v}</span>
-          <div class="cell-btns">
-            <button class="btn-p" onclick="changeCounter('${s.id}',${ci},1)">+</button>
-            <button class="btn-m" onclick="changeCounter('${s.id}',${ci},-1)">−</button>
-          </div>
-        </div>
-      `);
-    }
+  if (type === 'counter' || type === 'counter_manual' || type === 'counter_dual_manual') {
+    var v = sc.counter || 0;
+    var vc = v > 0 ? 'var(--gr)' : v < 0 ? 'var(--re)' : 'var(--text2)';
+    parts.push(
+      '<div style="display:flex;flex-direction:column;align-items:center;gap:3px">' +
+        '<span style="font-weight:800;font-size:14px;color:' + vc + ';min-width:28px;text-align:center;font-family:monospace" id="cv-' + s.id + '-' + ci + '">' + (v > 0 ? '+' : '') + v + '</span>' +
+        '<div style="display:flex;gap:3px">' +
+          '<button class="bp" onclick="chgCounter(\'' + s.id + '\',' + ci + ',1)">+</button>' +
+          '<button class="bm" onclick="chgCounter(\'' + s.id + '\',' + ci + ',-1)">−</button>' +
+        '</div>' +
+      '</div>'
+    );
   }
 
-  // Dual part
-  if (type.includes('dual')) {
-    const pos = sc.dualPos || 0;
-    const neg = sc.dualNeg || 0;
-    parts.push(`
-      <div class="cell-counter">
-        <div class="cell-dual">
-          <span class="dual-pos" id="dp-${s.id}-${ci}">+${pos}</span>
-          <span style="color:var(--text2)"> / </span>
-          <span class="dual-neg" id="dn-${s.id}-${ci}">−${neg}</span>
-        </div>
-        <div class="cell-btns">
-          <button class="btn-p" onclick="changeDual('${s.id}',${ci},'pos')">+</button>
-          <button class="btn-m" onclick="changeDual('${s.id}',${ci},'neg')">−</button>
-        </div>
-      </div>
-    `);
+  if (type === 'dual' || type === 'dual_manual' || type === 'counter_dual_manual') {
+    var pos = sc.dualPos || 0;
+    var neg = sc.dualNeg || 0;
+    parts.push(
+      '<div style="display:flex;flex-direction:column;align-items:center;gap:3px">' +
+        '<div style="display:flex;align-items:center">' +
+          '<span style="font-weight:800;font-size:13px;color:var(--gr);font-family:monospace" id="dp-' + s.id + '-' + ci + '">+' + pos + '</span>' +
+          '<span style="color:var(--text2);font-size:11px"> / </span>' +
+          '<span style="font-weight:800;font-size:13px;color:var(--re);font-family:monospace" id="dn-' + s.id + '-' + ci + '">−' + neg + '</span>' +
+        '</div>' +
+        '<div style="display:flex;gap:3px">' +
+          '<button class="bp" onclick="chgDual(\'' + s.id + '\',' + ci + ',1)">+</button>' +
+          '<button class="bm" onclick="chgDual(\'' + s.id + '\',' + ci + ',0)">−</button>' +
+        '</div>' +
+      '</div>'
+    );
   }
 
-  // Manual part
-  if (type.includes('manual')) {
-    const hasCrit = col.criteria && col.criteria.length > 0;
-    const v = sc.manual;
-    const maxP = hasCrit ? col.criteria.reduce((s,c)=>s+Number(c.max),0) : 100;
-    const display = v !== null && v !== undefined ? v + '/' + maxP : '—';
-    const clickFn = hasCrit ? `openCriteriaScore('${s.id}',${ci})` : `openManual('${s.id}',${ci})`;
-    const cls2 = hasCrit ? 'manual-val has-criteria' : 'manual-val';
-    parts.push(`
-      <div class="cell-manual">
-        <span class="${cls2}" id="mv-${s.id}-${ci}" onclick="${clickFn}">${display}</span>
-      </div>
-    `);
+  if (type === 'manual' || type === 'counter_manual' || type === 'dual_manual' || type === 'counter_dual_manual') {
+    var mv = sc.manual;
+    var hasCrit = col.criteria && col.criteria.length > 0;
+    var display = mv !== null && mv !== undefined ? mv + '/100' : '—';
+    var clickFn = hasCrit ? 'openCritScore(\'' + s.id + '\',' + ci + ')' : 'openMan(\'' + s.id + '\',' + ci + ')';
+    parts.push(
+      '<div style="display:flex;align-items:center;justify-content:center">' +
+        '<span class="mv' + (hasCrit ? ' crit' : '') + '" id="mv-' + s.id + '-' + ci + '" onclick="' + clickFn + '">' + display + '</span>' +
+      '</div>'
+    );
   }
 
-  return `<div style="display:flex;flex-direction:column;gap:4px;align-items:center">${parts.join('<div style="height:3px"></div>')}</div>`;
+  return '<div style="display:flex;flex-direction:column;align-items:center;gap:4px">' + parts.join('') + '</div>';
 }
 
-// ══════════════════════════════════════════
-// SCORE CHANGES
-// ══════════════════════════════════════════
-function getStudent(sid) {
-  const cls = getActive(); if (!cls) return null;
-  return cls.students.find(s => s.id === sid);
-}
-
-function changeCounter(sid, ci, delta) {
-  const cls = getActive(); if (!cls) return;
-  const s = cls.students.find(s => s.id === sid); if (!s) return;
-  if (!s.scores['c'+ci]) s.scores['c'+ci] = {counter:0,dualPos:0,dualNeg:0,manual:null,criteriaScores:[]};
-  s.scores['c'+ci].counter += delta;
+// ── SCORE CHANGES ──
+function chgCounter(sid, ci, delta) {
+  var cls = getAct(); if (!cls) return;
+  var s = cls.students.find(function(s){ return s.id === sid; }); if (!s) return;
+  s.scores['c' + ci].counter += delta;
   save();
-  const el = document.getElementById('cv-'+sid+'-'+ci);
+  var el = document.getElementById('cv-' + sid + '-' + ci);
   if (el) {
-    const v = s.scores['c'+ci].counter;
-    el.textContent = (v>0?'+':'') + v;
-    el.style.color = v>0?'var(--green)':v<0?'var(--red)':'var(--text2)';
+    var v = s.scores['c' + ci].counter;
+    el.textContent = (v > 0 ? '+' : '') + v;
+    el.style.color = v > 0 ? 'var(--gr)' : v < 0 ? 'var(--re)' : 'var(--text2)';
   }
 }
 
-function changeDual(sid, ci, which) {
-  const cls = getActive(); if (!cls) return;
-  const s = cls.students.find(s => s.id === sid); if (!s) return;
-  if (!s.scores['c'+ci]) s.scores['c'+ci] = {counter:0,dualPos:0,dualNeg:0,manual:null,criteriaScores:[]};
-  if (which === 'pos') s.scores['c'+ci].dualPos++;
-  else s.scores['c'+ci].dualNeg++;
+function chgDual(sid, ci, isPos) {
+  var cls = getAct(); if (!cls) return;
+  var s = cls.students.find(function(s){ return s.id === sid; }); if (!s) return;
+  if (isPos) s.scores['c' + ci].dualPos++;
+  else s.scores['c' + ci].dualNeg++;
   save();
-  const ep = document.getElementById('dp-'+sid+'-'+ci);
-  const en = document.getElementById('dn-'+sid+'-'+ci);
-  if (ep) ep.textContent = '+' + s.scores['c'+ci].dualPos;
-  if (en) en.textContent = '−' + s.scores['c'+ci].dualNeg;
+  var ep = document.getElementById('dp-' + sid + '-' + ci);
+  var en = document.getElementById('dn-' + sid + '-' + ci);
+  if (ep) ep.textContent = '+' + s.scores['c' + ci].dualPos;
+  if (en) en.textContent = '−' + s.scores['c' + ci].dualNeg;
 }
 
-// ══════════════════════════════════════════
-// MANUAL MODAL
-// ══════════════════════════════════════════
-function openManual(sid, ci) {
-  const cls = getActive(); if (!cls) return;
-  const s = cls.students.find(s => s.id === sid); if (!s) return;
-  const col = cls.columns[ci];
-  manualTarget = { sid, ci };
-  document.getElementById('manual-modal-title').textContent = s.name + ' ' + s.surname;
-  document.getElementById('manual-modal-sub').textContent = col.name + ' — Manuel Not';
-  const v = s.scores['c'+ci]?.manual;
-  document.getElementById('manual-input').value = v !== null && v !== undefined ? v : '';
-  document.getElementById('manual-input').max = 100;
-  document.getElementById('manual-modal').classList.remove('hidden');
-  setTimeout(() => document.getElementById('manual-input').select(), 100);
+// ── MANUAL MODAL ──
+function openMan(sid, ci) {
+  var cls = getAct(); if (!cls) return;
+  var s = cls.students.find(function(s){ return s.id === sid; }); if (!s) return;
+  manTarget = { sid: sid, ci: ci };
+  document.getElementById('mm-title').textContent = s.name + ' ' + s.surname;
+  document.getElementById('mm-sub').textContent = cls.columns[ci].name + ' — Manuel Not (max 100)';
+  var v = s.scores['c' + ci].manual;
+  document.getElementById('mm-inp').value = v !== null && v !== undefined ? v : '';
+  document.getElementById('m-man').classList.remove('hidden');
+  setTimeout(function(){ document.getElementById('mm-inp').select(); }, 100);
 }
 
-function saveManual() {
-  if (!manualTarget) return;
-  const { sid, ci } = manualTarget;
-  const cls = getActive(); if (!cls) return;
-  const s = cls.students.find(s => s.id === sid); if (!s) return;
-  const col = cls.columns[ci];
-  const maxP = col.criteria && col.criteria.length > 0 ? col.criteria.reduce((sum,c)=>sum+Number(c.max),0) : 100;
-  let v = parseFloat(document.getElementById('manual-input').value);
+function saveMan() {
+  if (!manTarget) return;
+  var cls = getAct(); if (!cls) return;
+  var s = cls.students.find(function(s){ return s.id === manTarget.sid; }); if (!s) return;
+  var v = parseFloat(document.getElementById('mm-inp').value);
   if (isNaN(v)) v = null;
-  else v = Math.min(Math.max(0, v), maxP);
-  s.scores['c'+ci].manual = v;
+  else v = Math.min(100, Math.max(0, v));
+  s.scores['c' + manTarget.ci].manual = v;
   save();
-  updateManualDisplay(sid, ci, v, maxP);
-  closeModal('manual-modal');
+  var el = document.getElementById('mv-' + manTarget.sid + '-' + manTarget.ci);
+  if (el) el.textContent = v !== null ? v + '/100' : '—';
+  closeM('m-man');
   showToast('Not kaydedildi ✓');
 }
 
-function clearManual() {
-  if (!manualTarget) return;
-  const { sid, ci } = manualTarget;
-  const cls = getActive(); if (!cls) return;
-  const s = cls.students.find(s => s.id === sid); if (!s) return;
-  const col = cls.columns[ci];
-  const maxP = col.criteria && col.criteria.length > 0 ? col.criteria.reduce((sum,c)=>sum+Number(c.max),0) : 100;
-  s.scores['c'+ci].manual = null;
+function clearMan() {
+  if (!manTarget) return;
+  var cls = getAct(); if (!cls) return;
+  var s = cls.students.find(function(s){ return s.id === manTarget.sid; }); if (!s) return;
+  s.scores['c' + manTarget.ci].manual = null;
   save();
-  updateManualDisplay(sid, ci, null, maxP);
-  closeModal('manual-modal');
+  var el = document.getElementById('mv-' + manTarget.sid + '-' + manTarget.ci);
+  if (el) el.textContent = '—';
+  closeM('m-man');
 }
 
-function updateManualDisplay(sid, ci, v, maxP) {
-  const el = document.getElementById('mv-'+sid+'-'+ci);
-  if (el) el.textContent = v !== null && v !== undefined ? v + '/' + maxP : '—';
+// ── CRITERIA SCORE MODAL ──
+function openCritScore(sid, ci) {
+  var cls = getAct(); if (!cls) return;
+  var s = cls.students.find(function(s){ return s.id === sid; }); if (!s) return;
+  var col = cls.columns[ci];
+  critTarget = { sid: sid, ci: ci };
+  document.getElementById('mc-title').textContent = s.name + ' ' + s.surname;
+  document.getElementById('mc-sub').textContent = col.name;
+  var scores = s.scores['c' + ci].critScores || col.criteria.map(function(){ return null; });
+  var html = '';
+  for (var i = 0; i < col.criteria.length; i++) {
+    var cr = col.criteria[i];
+    var sv = scores[i];
+    html += '<div class="crit-row">' +
+      '<div class="crit-name">' + cr.name + '</div>' +
+      '<div style="display:flex;align-items:center;gap:8px">' +
+        '<input class="crit-inp" type="number" inputmode="numeric" min="0" max="100" ' +
+          'value="' + (sv !== null && sv !== undefined ? sv : '') + '" ' +
+          'placeholder="0" oninput="updCritTotal()" id="ci-' + i + '">' +
+        '<span style="font-size:12px;color:var(--text2)" id="ci-max-' + i + '">/100</span>' +
+      '</div>' +
+    '</div>';
+  }
+  document.getElementById('mc-inputs').innerHTML = html;
+  updCritTotal();
+  document.getElementById('m-crit').classList.remove('hidden');
 }
 
-function getMaxP(col) {
-  return col.criteria && col.criteria.length > 0
-    ? col.criteria.reduce((s,c)=>s+Number(c.max),0)
-    : 100;
-}
-
-// ══════════════════════════════════════════
-// CRITERIA SCORE MODAL
-// ══════════════════════════════════════════
-function openCriteriaScore(sid, ci) {
-  const cls = getActive(); if (!cls) return;
-  const s = cls.students.find(s => s.id === sid); if (!s) return;
-  const col = cls.columns[ci];
-  criteriaTarget = { sid, ci };
-  document.getElementById('criteria-modal-title').textContent = s.name + ' ' + s.surname;
-  document.getElementById('criteria-modal-sub').textContent = col.name;
-
-  const scores = s.scores['c'+ci].criteriaScores || col.criteria.map(() => null);
-  const maxTotal = col.criteria.reduce((sum,c)=>sum+Number(c.max),0);
-
-  document.getElementById('criteria-inputs').innerHTML = col.criteria.map((cr, i) => `
-    <div class="criteria-row">
-      <div class="criteria-name">${cr.name}</div>
-      <div class="criteria-score-row">
-        <input class="criteria-input" type="number" min="0" max="${cr.max}" 
-          value="${scores[i] !== null && scores[i] !== undefined ? scores[i] : ''}" 
-          placeholder="0"
-          oninput="updateCriteriaTotal(${ci})"
-          id="crit-inp-${i}">
-        <span class="criteria-max">/ ${cr.max}</span>
-      </div>
-    </div>
-  `).join('');
-
-  updateCriteriaTotal(ci);
-  document.getElementById('criteria-modal').classList.remove('hidden');
-}
-
-function updateCriteriaTotal(ci) {
-  const cls = getActive(); if (!cls) return;
-  const col = cls.columns[ci];
-  const maxTotal = col.criteria.reduce((sum,c)=>sum+Number(c.max),0);
-  let total = 0;
-  col.criteria.forEach((cr, i) => {
-    const el = document.getElementById('crit-inp-'+i);
-    if (el) { const v = parseFloat(el.value); if (!isNaN(v)) total += v; }
-  });
-  const el = document.getElementById('criteria-total-display');
+function updCritTotal() {
+  if (!critTarget) return;
+  var cls = getAct(); if (!cls) return;
+  var col = cls.columns[critTarget.ci];
+  var total = 0;
+  for (var i = 0; i < col.criteria.length; i++) {
+    var el = document.getElementById('ci-' + i);
+    if (el) { var v = parseFloat(el.value); if (!isNaN(v)) total += v; }
+  }
+  var el = document.getElementById('mc-total');
   if (el) {
-    el.textContent = total + ' / ' + maxTotal;
-    el.style.color = total > maxTotal ? 'var(--red)' : total === maxTotal ? 'var(--green)' : 'var(--text)';
+    var rem = 100 - total;
+    el.textContent = total + ' / 100' + (rem > 0 ? ' (kalan: ' + rem + ')' : '');
+    el.style.color = total > 100 ? 'var(--re)' : total === 100 ? 'var(--gr)' : 'var(--text)';
+  }
+  // Update each input's /max label dynamically
+  for (var j = 0; j < col.criteria.length; j++) {
+    var inp = document.getElementById('ci-' + j);
+    var lbl = document.getElementById('ci-max-' + j);
+    if (inp && lbl) {
+      var thisV = parseFloat(inp.value) || 0;
+      var otherSum = total - thisV;
+      var maxAllow = Math.max(0, 100 - otherSum);
+      lbl.textContent = '/ ' + maxAllow;
+    }
   }
 }
 
-function saveCriteriaScore() {
-  if (!criteriaTarget) return;
-  const { sid, ci } = criteriaTarget;
-  const cls = getActive(); if (!cls) return;
-  const s = cls.students.find(s => s.id === sid); if (!s) return;
-  const col = cls.columns[ci];
-  const maxTotal = col.criteria.reduce((sum,c)=>sum+Number(c.max),0);
-
-  const newScores = col.criteria.map((cr, i) => {
-    const el = document.getElementById('crit-inp-'+i);
-    if (!el || el.value === '') return null;
-    return Math.min(Math.max(0, parseFloat(el.value) || 0), Number(cr.max));
-  });
-
-  const total = newScores.reduce((sum, v) => sum + (v !== null ? v : 0), 0);
-  if (total > maxTotal) { showToast('Toplam ' + maxTotal + "'ü geçemez!"); return; }
-
-  s.scores['c'+ci].criteriaScores = newScores;
-  s.scores['c'+ci].manual = total > 0 ? total : null;
+function saveCritScore() {
+  if (!critTarget) return;
+  var cls = getAct(); if (!cls) return;
+  var s = cls.students.find(function(s){ return s.id === critTarget.sid; }); if (!s) return;
+  var col = cls.columns[critTarget.ci];
+  var newScores = [];
+  var total = 0;
+  for (var i = 0; i < col.criteria.length; i++) {
+    var el = document.getElementById('ci-' + i);
+    if (!el || el.value === '') { newScores.push(null); continue; }
+    var v = Math.max(0, parseFloat(el.value) || 0);
+    newScores.push(v);
+    total += v;
+  }
+  if (total > 100) { showToast('Toplam 100 puani gecemez!'); return; }
+  s.scores['c' + critTarget.ci].critScores = newScores;
+  s.scores['c' + critTarget.ci].manual = total > 0 ? total : null;
   save();
-  updateManualDisplay(sid, ci, s.scores['c'+ci].manual, maxTotal);
-  closeModal('criteria-modal');
-  showToast('Kriter notları kaydedildi ✓');
+  var mvEl = document.getElementById('mv-' + critTarget.sid + '-' + critTarget.ci);
+  if (mvEl) mvEl.textContent = total > 0 ? total + '/100' : '—';
+  closeM('m-crit');
+  showToast('Kriter notlari kaydedildi');
 }
 
-// ══════════════════════════════════════════
-// NOTES
-// ══════════════════════════════════════════
-function openClassNote() {
-  const cls = getActive(); if (!cls) return;
+// ── NOTES ──
+function openClsNote() {
+  var cls = getAct(); if (!cls) return;
   noteTarget = { type: 'class' };
-  document.getElementById('note-modal-title').textContent = '📝 Sınıf Notu';
-  document.getElementById('note-modal-sub').textContent = cls.name;
-  document.getElementById('note-textarea').value = cls.note || '';
-  document.getElementById('btn-del-note').classList.toggle('hidden', !(cls.note && cls.note.trim()));
-  document.getElementById('note-modal').classList.remove('hidden');
-  setTimeout(() => document.getElementById('note-textarea').focus(), 100);
+  document.getElementById('mn-title').textContent = 'Sinif Notu';
+  document.getElementById('mn-sub').textContent = cls.name;
+  document.getElementById('mn-ta').value = cls.note || '';
+  document.getElementById('mn-del').classList.toggle('hidden', !(cls.note && cls.note.trim()));
+  document.getElementById('m-note').classList.remove('hidden');
+  setTimeout(function(){ document.getElementById('mn-ta').focus(); }, 100);
 }
 
-function openStudentNote(sid) {
-  const cls = getActive(); if (!cls) return;
-  const s = cls.students.find(s => s.id === sid); if (!s) return;
-  noteTarget = { type: 'student', sid };
-  document.getElementById('note-modal-title').textContent = s.name + ' ' + s.surname;
-  document.getElementById('note-modal-sub').textContent = 'No: ' + (s.no||'—') + ' · Öğrenci Notu';
-  document.getElementById('note-textarea').value = s.note || '';
-  document.getElementById('btn-del-note').classList.toggle('hidden', !(s.note && s.note.trim()));
-  document.getElementById('note-modal').classList.remove('hidden');
-  setTimeout(() => document.getElementById('note-textarea').focus(), 100);
+function openStuNote(sid) {
+  var cls = getAct(); if (!cls) return;
+  var s = cls.students.find(function(s){ return s.id === sid; }); if (!s) return;
+  noteTarget = { type: 'student', sid: sid };
+  document.getElementById('mn-title').textContent = s.name + ' ' + s.surname;
+  document.getElementById('mn-sub').textContent = 'No: ' + (s.no || '—') + ' · Ogrenci Notu';
+  document.getElementById('mn-ta').value = s.note || '';
+  document.getElementById('mn-del').classList.toggle('hidden', !(s.note && s.note.trim()));
+  document.getElementById('m-note').classList.remove('hidden');
+  setTimeout(function(){ document.getElementById('mn-ta').focus(); }, 100);
 }
 
 function saveNote() {
-  const text = document.getElementById('note-textarea').value.trim();
+  var text = document.getElementById('mn-ta').value.trim();
   if (noteTarget.type === 'class') {
-    updActive(c => ({...c, note: text}));
+    updAct(function(c){ return Object.assign({}, c, { note: text }); });
   } else {
-    updActive(c => ({...c, students: c.students.map(s => s.id === noteTarget.sid ? {...s, note: text} : s)}));
+    updAct(function(c){
+      return Object.assign({}, c, { students: c.students.map(function(s){
+        return s.id === noteTarget.sid ? Object.assign({}, s, { note: text }) : s;
+      })});
+    });
   }
-  closeModal('note-modal');
-  renderClass();
-  showToast('Not kaydedildi ✓');
+  closeM('m-note'); renderCls(); showToast('Not kaydedildi');
 }
 
-function deleteNote() {
+function delNote() {
   if (!confirm('Not silinsin mi?')) return;
   if (noteTarget.type === 'class') {
-    updActive(c => ({...c, note: ''}));
+    updAct(function(c){ return Object.assign({}, c, { note: '' }); });
   } else {
-    updActive(c => ({...c, students: c.students.map(s => s.id === noteTarget.sid ? {...s, note: ''} : s)}));
+    updAct(function(c){
+      return Object.assign({}, c, { students: c.students.map(function(s){
+        return s.id === noteTarget.sid ? Object.assign({}, s, { note: '' }) : s;
+      })});
+    });
   }
-  closeModal('note-modal');
-  renderClass();
-  showToast('Not silindi');
+  closeM('m-note'); renderCls(); showToast('Not silindi');
 }
 
-function closeModal(id) {
-  document.getElementById(id).classList.add('hidden');
-}
+function closeM(id) { document.getElementById(id).classList.add('hidden'); }
 
-// ══════════════════════════════════════════
-// SESSION / RESET
-// ══════════════════════════════════════════
+// ── SESSION / RESET ──
 function newSession() {
-  if (!confirm('Yeni ders başlatılsın mı? Tüm puanlar sıfırlanır.')) return;
-  updActive(c => ({
-    ...c, session: c.session + 1,
-    students: c.students.map(s => {
-      const scores = {};
-      c.columns.forEach((col, i) => {
-        scores['c'+i] = {counter:0,dualPos:0,dualNeg:0,manual:null,criteriaScores:col.criteria?col.criteria.map(()=>null):[]};
-      });
-      return {...s, scores};
-    })
-  }));
-  renderClass();
-  showToast('Yeni ders başladı!');
+  if (!confirm('Yeni ders? Puanlar sifirlanir.')) return;
+  updAct(function(c){
+    return Object.assign({}, c, {
+      session: c.session + 1,
+      students: c.students.map(function(s){
+        return Object.assign({}, s, { scores: newStuScores(c.columns) });
+      })
+    });
+  });
+  renderCls(); showToast('Yeni ders basladi!');
 }
 
-function resetScores() {
-  if (!confirm('Tüm puanlar sıfırlansın mı?')) return;
-  updActive(c => ({
-    ...c,
-    students: c.students.map(s => {
-      const scores = {};
-      c.columns.forEach((col, i) => {
-        scores['c'+i] = {counter:0,dualPos:0,dualNeg:0,manual:null,criteriaScores:col.criteria?col.criteria.map(()=>null):[]};
-      });
-      return {...s, scores};
-    })
-  }));
-  renderClass();
-  showToast('Sıfırlandı');
+function resetAll() {
+  if (!confirm('Tum puanlar sifirlansin mi?')) return;
+  updAct(function(c){
+    return Object.assign({}, c, {
+      students: c.students.map(function(s){
+        return Object.assign({}, s, { scores: newStuScores(c.columns) });
+      })
+    });
+  });
+  renderCls(); showToast('Sifirland');
 }
 
-// ══════════════════════════════════════════
-// EXPORT
-// ══════════════════════════════════════════
-function exportExcel() {
-  const cls = getActive(); if (!cls) return;
-  const rows = [];
-
-  // Build header
-  const header = ['No', 'İsim', 'Soyisim'];
-  cls.columns.forEach(col => {
-    if (col.type.includes('counter') && !col.type.startsWith('dual')) header.push(col.name + ' (Sayaç)');
-    if (col.type.includes('dual')) { header.push(col.name + ' (+)'); header.push(col.name + ' (−)'); }
-    if (col.type.includes('manual')) {
+// ── EXPORT ──
+function doExport() {
+  var cls = getAct(); if (!cls) return;
+  var rows = [];
+  var header = ['No', 'Isim', 'Soyisim'];
+  for (var ci = 0; ci < cls.columns.length; ci++) {
+    var col = cls.columns[ci];
+    if (col.type === 'counter' || col.type === 'counter_manual' || col.type === 'counter_dual_manual') header.push(col.name + ' (Sayac1)');
+    if (col.type === 'dual' || col.type === 'dual_manual' || col.type === 'counter_dual_manual') {
+      header.push(col.name + ' (+)'); header.push(col.name + ' (-)');
+    }
+    if (hasManual(col.type)) {
       if (col.criteria && col.criteria.length > 0) {
-        col.criteria.forEach(cr => header.push(col.name + ' — ' + cr.name));
+        for (var k = 0; k < col.criteria.length; k++) header.push(col.name + ' - ' + col.criteria[k].name);
       }
       header.push(col.name + ' (Not)');
     }
-  });
+  }
   header.push('Not');
   rows.push(header);
 
-  // Build data
-  [...cls.students].sort(sortNo).forEach(s => {
-    const row = [s.no, s.name, s.surname];
-    cls.columns.forEach((col, i) => {
-      const sc = s.scores['c'+i] || {};
-      if (col.type.includes('counter') && !col.type.startsWith('dual')) row.push(sc.counter || 0);
-      if (col.type.includes('dual')) { row.push(sc.dualPos || 0); row.push(sc.dualNeg || 0); }
-      if (col.type.includes('manual')) {
-        if (col.criteria && col.criteria.length > 0) {
-          const cs = sc.criteriaScores || [];
-          col.criteria.forEach((cr, ci) => row.push(cs[ci] !== null && cs[ci] !== undefined ? cs[ci] : ''));
+  var sorted = cls.students.slice().sort(sortNo);
+  for (var i = 0; i < sorted.length; i++) {
+    var s = sorted[i];
+    var row = [s.no, s.name, s.surname];
+    for (var ci2 = 0; ci2 < cls.columns.length; ci2++) {
+      var col2 = cls.columns[ci2];
+      var sc = s.scores['c' + ci2] || {};
+      if (col2.type === 'counter' || col2.type === 'counter_manual' || col2.type === 'counter_dual_manual') row.push(sc.counter || 0);
+      if (col2.type === 'dual' || col2.type === 'dual_manual' || col2.type === 'counter_dual_manual') {
+        row.push(sc.dualPos || 0); row.push(sc.dualNeg || 0);
+      }
+      if (hasManual(col2.type)) {
+        if (col2.criteria && col2.criteria.length > 0) {
+          var cs = sc.critScores || [];
+          for (var k2 = 0; k2 < col2.criteria.length; k2++) row.push(cs[k2] !== null && cs[k2] !== undefined ? cs[k2] : '');
         }
         row.push(sc.manual !== null && sc.manual !== undefined ? sc.manual : '');
       }
-    });
+    }
     row.push(s.note || '');
     rows.push(row);
-  });
+  }
 
-  const ws = XLSX.utils.aoa_to_sheet(rows);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, cls.name.substring(0,31));
-  XLSX.writeFile(wb, cls.name.replace(/\s+/g,'_') + '_ders' + cls.session + '.xlsx');
-  showToast('Excel indirildi ✓');
+  var ws = XLSX.utils.aoa_to_sheet(rows);
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, cls.name.substring(0, 31));
+  XLSX.writeFile(wb, cls.name.replace(/\s+/g, '_') + '_ders' + cls.session + '.xlsx');
+  showToast('Excel indirildi');
 }
 
-// ══════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════
-showPage('page-home');
+// ── INIT ──
+goPage('pg-home');
 </script>
-<script>if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js'); }</script>
+<script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }</script>
 </body>
 </html>
