@@ -191,6 +191,22 @@ tr.od{background:var(--bg)}
   </div>
 </div>
 
+<!-- EDIT COLUMNS PAGE -->
+<div id="pg-edit-cols" class="hidden">
+  <div class="tb">
+    <button class="tb-back" onclick="showPage('pg-class')">‹</button>
+    <div class="tb-info">
+      <div class="tb-title">Sütunları Düzenle</div>
+      <div class="tb-sub" id="editcols-sub"></div>
+    </div>
+  </div>
+  <div class="pw">
+    <div id="editcols-builder"></div>
+    <button class="btn-sec" onclick="addEditCol()">＋ Yeni Sütun Ekle</button>
+    <button class="btn-pri" onclick="saveEditCols()">Değişiklikleri Kaydet</button>
+  </div>
+</div>
+
 <!-- NOTE MODAL -->
 <div id="m-note" class="overlay hidden" onclick="if(event.target===this)closeM('m-note')">
   <div class="mbox">
