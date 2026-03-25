@@ -1,7 +1,6 @@
-const CACHE = 'sinif-defteri-v2';
+const CACHE = 'sinif-defteri-v3';
 const ASSETS = [
-  '/sinif-defteri/sinif_defteri.html',
-  'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'
+  '/sinif-defteri/sinif_defteri.html'
 ];
 
 self.addEventListener('install', e => {
@@ -22,6 +21,8 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request).catch(() => caches.match('/sinif-defteri/sinif_defteri.html')))
+    fetch(e.request).catch(() =>
+      caches.match(e.request).then(r => r || caches.match('/sinif-defteri/sinif_defteri.html'))
+    )
   );
 });
