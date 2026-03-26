@@ -176,6 +176,7 @@ tr.od{background:var(--bg)}
     <button class="tb-btn" style="background:var(--ye-dim);color:var(--ye)" onclick="openClsNote()">📝 Not</button>
     <button class="tb-btn" style="background:var(--bg3);color:var(--text2)" onclick="doExport()">📤 Excel</button>
     <button class="tb-btn" style="background:var(--re-dim);color:var(--re)" onclick="resetAll()">🗑</button>
+    <button class="tb-btn" style="background:var(--bg3);color:var(--text2)" onclick="goPage('pg-edit-cols')">⚙️ Sütunlar</button>
   </div>
   <div id="cls-note-bar" class="note-bar hidden" onclick="openClsNote()">
     <div class="note-bar-lbl">📝 Sınıf Notu</div>
@@ -194,7 +195,7 @@ tr.od{background:var(--bg)}
 <!-- EDIT COLUMNS PAGE -->
 <div id="pg-edit-cols" class="hidden">
   <div class="tb">
-    <button class="tb-back" onclick="showPage('pg-class')">‹</button>
+    <button class="tb-back" onclick="goPage('pg-cls')">‹</button>
     <div class="tb-info">
       <div class="tb-title">Sütunları Düzenle</div>
       <div class="tb-sub" id="editcols-sub"></div>
@@ -291,6 +292,7 @@ function goPage(id) {
   if (id === 'pg-cls') renderCls();
   if (id === 'pg-addstu') renderStuList();
   if (id === 'pg-addcls') buildCols();
+  if (id === 'pg-edit-cols') openEditCols();
   window.scrollTo(0, 0);
 }
 
@@ -961,8 +963,151 @@ function doExport() {
 }
 
 // ── INIT ──
-goPage('pg-home');
-</script>
+
+// ── EDIT COLUMNS ──
+var editCols = [];
+var editCritColIdx = null;
+
+function openEditCols() {
+  var cls = getAct(); if (!cls) return;
+  editCols = JSON.parse(JSON.stringify(cls.columns));
+  document.getElementById('editcols-sub').textContent = cls.name;
+  renderEditCols();
+}
+
+function renderEditCols() {
+  var TYPES = [
+    {id:'counter', label:'Sayac 1'},
+    {id:'dual', label:'Sayac 2'},
+    {id:'manual', label:'Manuel'},
+    {id:'counter_manual', label:'S1+Manuel'},
+    {id:'dual_manual', label:'S2+Manuel'},
+    {id:'counter_dual_manual', label:'S1+S2+Manuel'}
+  ];
+  var html = '';
+  for (var i = 0; i < editCols.length; i++) {
+    var col = editCols[i];
+    html += '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px">';
+    html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">';
+    html += '<span style="background:var(--ac-dim);color:var(--ac);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:800">Sutun ' + (i+1) + '</span>';
+    if (editCols.length > 1) {
+      html += '<button data-del="' + i + '" style="background:var(--re-dim);border:none;border-radius:8px;color:var(--re);padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer">Sil</button>';
+    }
+    html += '</div>';
+    html += '<label style="display:block;font-size:11px;font-weight:700;color:var(--text2);margin-bottom:5px;text-transform:uppercase">Sutun Adi</label>';
+    html += '<input data-colidx="' + i + '" class="finput" style="width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:11px 13px;font-size:15px;color:var(--text);outline:none;font-family:inherit;margin-bottom:10px" value="' + col.name.replace(/"/g, '&quot;') + '" placeholder="Sutun adi">';
+    html += '<label style="display:block;font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px;text-transform:uppercase">Notlama Tipi</label>';
+    html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px">';
+    for (var j = 0; j < TYPES.length; j++) {
+      var t = TYPES[j];
+      var isSel = col.type === t.id;
+      var borderColor = isSel ? 'var(--ac)' : 'var(--border)';
+      var bgColor = isSel ? 'var(--ac-dim)' : 'var(--bg3)';
+      var txtColor = isSel ? 'var(--ac)' : 'var(--text2)';
+      html += '<div data-typeidx="' + i + '" data-type="' + t.id + '" style="border:2px solid ' + borderColor + ';border-radius:10px;background:' + bgColor + ';padding:8px 4px;cursor:pointer;text-align:center;font-size:10px;font-weight:700;color:' + txtColor + '">' + t.label + '</div>';
+    }
+    html += '</div>';
+    var hasMnl = ['manual','counter_manual','dual_manual','counter_dual_manual'].indexOf(col.type) >= 0;
+    if (hasMnl) {
+      var critLen = col.criteria && col.criteria.length > 0 ? col.criteria.length : 0;
+      var critLabel = critLen > 0 ? critLen + ' kriter - duzenle' : 'Kriter Ekle (opsiyonel)';
+      html += '<button data-critidx="' + i + '" style="display:flex;align-items:center;gap:6px;padding:9px 12px;border:1.5px dashed var(--gr);border-radius:9px;background:transparent;color:var(--gr);font-size:12px;font-weight:700;width:100%;margin-top:4px;cursor:pointer">Kriter: ' + critLabel + '</button>';
+      if (critLen > 0) {
+        html += '<div style="background:var(--bg3);border-radius:8px;padding:9px 12px;margin-top:6px;font-size:12px;color:var(--text2)">' + col.criteria.map(function(c){return c.name;}).join(' - ') + '</div>';
+      }
+    }
+    html += '</div>';
+  }
+  var el = document.getElementById('editcols-builder');
+  el.innerHTML = html;
+
+  // Attach events via delegation
+  el.querySelectorAll('[data-del]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var idx = parseInt(this.getAttribute('data-del'));
+      if (confirm(editCols[idx].name + ' silinsin mi?')) {
+        editCols.splice(idx, 1);
+        renderEditCols();
+      }
+    });
+  });
+  el.querySelectorAll('[data-colidx]').forEach(function(inp) {
+    inp.addEventListener('input', function() {
+      editCols[parseInt(this.getAttribute('data-colidx'))].name = this.value;
+    });
+  });
+  el.querySelectorAll('[data-typeidx]').forEach(function(div) {
+    div.addEventListener('click', function() {
+      var idx = parseInt(this.getAttribute('data-typeidx'));
+      var type = this.getAttribute('data-type');
+      editCols[idx].type = type;
+      var hasMnl = ['manual','counter_manual','dual_manual','counter_dual_manual'].indexOf(type) >= 0;
+      if (!hasMnl) editCols[idx].criteria = [];
+      renderEditCols();
+    });
+  });
+  el.querySelectorAll('[data-critidx]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var idx = parseInt(this.getAttribute('data-critidx'));
+      openEditCritB(idx);
+    });
+  });
+}
+
+function addEditCol() {
+  var hints = ['Konusma','Katilim','Davranis','Sinav','Odev'];
+  editCols.push({name: hints[editCols.length % hints.length], type: 'counter', criteria: []});
+  renderEditCols();
+}
+
+function openEditCritB(colIdx) {
+  editCritColIdx = colIdx;
+  var col = editCols[colIdx];
+  tempCrit = col.criteria && col.criteria.length > 0 ? JSON.parse(JSON.stringify(col.criteria)) : [{name:'Kriter 1'}];
+  document.getElementById('crit-bld-sub').textContent = col.name + ' sutunu icin';
+  renderCritBld();
+  document.querySelectorAll('[id^="pg-"]').forEach(function(el){el.classList.add('hidden');});
+  document.getElementById('pg-crit-bld').classList.remove('hidden');
+  document.querySelector('#pg-crit-bld .tb-back').setAttribute('onclick', 'saveEditCritReturn()');
+  window.scrollTo(0,0);
+}
+
+function saveEditCritReturn() {
+  if (tempCrit.length > 0 && !tempCrit.some(function(c){return !c.name.trim();})) {
+    editCols[editCritColIdx].criteria = JSON.parse(JSON.stringify(tempCrit));
+  }
+  document.querySelector('#pg-crit-bld .tb-back').setAttribute('onclick', "goPage('pg-addcls')");
+  goPage('pg-edit-cols');
+}
+
+function saveEditCols() {
+  var cls = getAct(); if (!cls) return;
+  var oldCols = cls.columns;
+  var newCols = editCols;
+  updAct(function(c) {
+    var newStudents = c.students.map(function(s) {
+      var newScores = {};
+      newCols.forEach(function(newCol, ni) {
+        var oldIdx = -1;
+        for (var oi = 0; oi < oldCols.length; oi++) {
+          if (oldCols[oi].name === newCol.name) { oldIdx = oi; break; }
+        }
+        if (oldIdx >= 0 && oldCols[oldIdx].type === newCol.type) {
+          newScores['c'+ni] = s.scores['c'+oldIdx] || {counter:0,dualPos:0,dualNeg:0,manual:null,critScores:[]};
+        } else {
+          newScores['c'+ni] = {counter:0,dualPos:0,dualNeg:0,manual:null,critScores:newCol.criteria?newCol.criteria.map(function(){return null;}):[]}; 
+        }
+      });
+      return Object.assign({},s,{scores:newScores});
+    });
+    return Object.assign({},c,{columns:JSON.parse(JSON.stringify(newCols)),students:newStudents});
+  });
+  goPage('pg-cls');
+  showToast('Sutunlar guncellendi');
+}
+
+// ── INIT ──
+goPage('pg-home');</script>
 <script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }</script>
 </body>
 </html>
