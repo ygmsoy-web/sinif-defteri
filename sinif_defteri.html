@@ -171,12 +171,12 @@ tr.od{background:var(--bg)}
     <button class="theme-btn" onclick="toggleTheme()" id="tbtn2">🌙</button>
   </div>
   <div class="toolbar">
-    <button class="tb-btn" style="background:var(--ac-dim);color:var(--ac)" onclick="goPage('pg-addstu')">➕ Öğrenci</button>
-    <button class="tb-btn" style="background:var(--gr-dim);color:var(--gr)" onclick="newSession()">🔄 Ders</button>
-    <button class="tb-btn" style="background:var(--ye-dim);color:var(--ye)" onclick="openClsNote()">📝 Not</button>
-    <button class="tb-btn" style="background:var(--bg3);color:var(--text2)" onclick="doExport()">📤 Excel</button>
-    <button class="tb-btn" style="background:var(--re-dim);color:var(--re)" onclick="resetAll()">🗑</button>
-    <button class="tb-btn" style="background:var(--bg3);color:var(--text2)" onclick="goPage('pg-edit-cols')">⚙️ Sütunlar</button>
+    <button class="tb-btn" style="background:var(--ac-dim);color:var(--ac);font-size:20px" onclick="goPage('pg-addstu')" title="Öğrenci Ekle">➕</button>
+    <button class="tb-btn" style="background:var(--gr-dim);color:var(--gr);font-size:20px" onclick="newSession()" title="Yeni Ders">🔄</button>
+    <button class="tb-btn" style="background:var(--ye-dim);color:var(--ye);font-size:20px" onclick="openClsNote()" title="Sınıf Notu">📝</button>
+    <button class="tb-btn" style="background:var(--bg3);color:var(--text2);font-size:20px" onclick="doExport()" title="Excel İndir">📤</button>
+    <button class="tb-btn" style="background:var(--re-dim);color:var(--re);font-size:20px" onclick="resetAll()" title="Sıfırla">🗑</button>
+    <button class="tb-btn" style="background:var(--bg3);color:var(--text2);font-size:20px" onclick="goPage('pg-edit-cols')" title="Sütunları Düzenle">⚙️</button>
   </div>
   <div id="cls-note-bar" class="note-bar hidden" onclick="openClsNote()">
     <div class="note-bar-lbl">📝 Sınıf Notu</div>
@@ -1064,11 +1064,11 @@ function openEditCritB(colIdx) {
   editCritColIdx = colIdx;
   var col = editCols[colIdx];
   tempCrit = col.criteria && col.criteria.length > 0 ? JSON.parse(JSON.stringify(col.criteria)) : [{name:'Kriter 1'}];
-  document.getElementById('crit-bld-sub').textContent = col.name + ' sutunu icin';
+  document.getElementById('crit-builder-sub').textContent = col.name + ' sutunu icin';
   renderCritBld();
   document.querySelectorAll('[id^="pg-"]').forEach(function(el){el.classList.add('hidden');});
-  document.getElementById('pg-crit-bld').classList.remove('hidden');
-  document.querySelector('#pg-crit-bld .tb-back').setAttribute('onclick', 'saveEditCritReturn()');
+  document.getElementById('pg-crit-builder').classList.remove('hidden');
+  document.querySelector('#pg-crit-builder .tb-back').setAttribute('onclick', 'saveEditCritReturn()');
   window.scrollTo(0,0);
 }
 
@@ -1076,7 +1076,7 @@ function saveEditCritReturn() {
   if (tempCrit.length > 0 && !tempCrit.some(function(c){return !c.name.trim();})) {
     editCols[editCritColIdx].criteria = JSON.parse(JSON.stringify(tempCrit));
   }
-  document.querySelector('#pg-crit-bld .tb-back').setAttribute('onclick', "goPage('pg-addcls')");
+  document.querySelector('#pg-crit-builder .tb-back').setAttribute('onclick', "goPage('pg-addcls')");
   goPage('pg-edit-cols');
 }
 
