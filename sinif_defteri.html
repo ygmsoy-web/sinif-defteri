@@ -627,9 +627,14 @@ function renderCls() {
     var s = sorted[i];
     bodyHtml += '<tr class="' + (i % 2 === 0 ? 'ev' : 'od') + '">' +
       '<td style="font-size:10px;color:var(--text2);font-weight:700">' + (s.no || '') + '</td>' +
-      '<td class="l" onclick="openStuNote(\'' + s.id + '\')" style="cursor:pointer">' +
-        '<div style="font-size:12px;font-weight:700">' + s.name + (s.note && s.note.trim() ? '<span class="ndot"></span>' : '') + '</div>' +
-        '<div style="font-size:10px;color:var(--text2)">' + s.surname + '</div>' +
+      '<td class="l">' +
+        '<div style="font-size:12px;font-weight:700;cursor:pointer" onclick="openStuNote(\'' + s.id + '\')">'+
+          s.name + (s.note && s.note.trim() ? '<span class="ndot"></span>' : '') +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:4px;margin-top:2px">' +
+          '<span style="font-size:10px;color:var(--text2)">' + s.surname + '</span>' +
+          (s.log && s.log.length > 0 ? '<button onclick="openHist(\'' + s.id + '\'" style="background:var(--ac-dim);border:none;border-radius:5px;color:var(--ac);font-size:9px;font-weight:800;padding:1px 5px;cursor:pointer">📋 ' + s.log.length + '</button>' : '') +
+        '</div>' +
       '</td>';
     for (var ci2 = 0; ci2 < cls.columns.length; ci2++) {
       bodyHtml += '<td>' + renderCell(s, ci2, cls.columns[ci2]) + '</td>';
