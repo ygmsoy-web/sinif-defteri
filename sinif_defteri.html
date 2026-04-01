@@ -176,7 +176,7 @@ tr.od{background:var(--bg)}
     <button class="tb-btn" style="background:var(--ye-dim);color:var(--ye);font-size:20px" onclick="openClsNote()" title="Sınıf Notu">📝</button>
     <button class="tb-btn" style="background:var(--bg3);color:var(--text2);font-size:20px" onclick="doExport()" title="Excel İndir">📤</button>
     <button class="tb-btn" style="background:var(--re-dim);color:var(--re);font-size:20px" onclick="resetAll()" title="Sıfırla">🗑</button>
-    <button class="tb-btn" style="background:var(--bg3);color:var(--text2);font-size:20px" onclick="goPage('pg-edit-cols')" title="Sütunları Düzenle">⚙️</button>
+    <button class="tb-btn" style="background:var(--bg3);color:var(--text2);font-size:20px" onclick="editCols=[];goPage('pg-edit-cols')" title="Sütunları Düzenle">⚙️</button>
   </div>
   <div id="cls-note-bar" class="note-bar hidden" onclick="openClsNote()">
     <div class="note-bar-lbl">📝 Sınıf Notu</div>
@@ -292,7 +292,7 @@ function goPage(id) {
   if (id === 'pg-cls') renderCls();
   if (id === 'pg-addstu') renderStuList();
   if (id === 'pg-addcls') buildCols();
-  if (id === 'pg-edit-cols') openEditCols();
+  if (id === 'pg-edit-cols') { if (editCols.length === 0) openEditCols(true); else { var cls2=getAct(); if(cls2) document.getElementById('editcols-sub').textContent=cls2.name; renderEditCols(); } }
   window.scrollTo(0, 0);
 }
 
@@ -977,9 +977,11 @@ function doExport() {
 var editCols = [];
 var editCritColIdx = null;
 
-function openEditCols() {
+function openEditCols(forceReload) {
   var cls = getAct(); if (!cls) return;
-  editCols = JSON.parse(JSON.stringify(cls.columns));
+  if (forceReload || editCols.length === 0) {
+    editCols = JSON.parse(JSON.stringify(cls.columns));
+  }
   document.getElementById('editcols-sub').textContent = cls.name;
   renderEditCols();
 }
