@@ -104,7 +104,10 @@ tr.od{background:var(--bg)}
   <div class="home-hdr">
     <div><div class="home-title">Sınıflarım</div><div class="home-sub" id="home-sub">Henüz sınıf yok</div></div>
   </div>
-  <button class="btn-dashed" onclick="goPage('pg-addcls')">＋ Yeni Sınıf Oluştur</button>
+  <div style="display:flex;gap:8px;margin:0 16px 0">
+    <button class="btn-dashed" onclick="goPage('pg-addcls')" style="flex:1;margin:8px 0">＋ Yeni Sınıf Oluştur</button>
+    <button onclick="exportAll()" style="padding:14px 16px;border:2px solid var(--gr);border-radius:var(--r);background:transparent;color:var(--gr);font-size:20px;font-weight:700;cursor:pointer;margin:8px 0;white-space:nowrap" title="Tüm Sınıfları Dışa Aktar">📤</button>
+  </div>
   <div id="cls-list"></div>
 </div>
 
@@ -696,10 +699,22 @@ function renderCell(s, ci, col) {
 }
 
 // ── SCORE CHANGES ──
+function nowStr() {
+  var d = new Date();
+  return d.getDate() + '/' + (d.getMonth()+1) + '/' + d.getFullYear();
+}
+
+function addLog(s, ci, colName, desc) {
+  if (!s.log) s.log = [];
+  s.log.push({ date: nowStr(), col: colName, val: desc });
+  if (s.log.length > 200) s.log = s.log.slice(-200);
+}
+
 function chgCounter(sid, ci, delta) {
   var cls = getAct(); if (!cls) return;
   var s = cls.students.find(function(s){ return s.id === sid; }); if (!s) return;
   s.scores['c' + ci].counter += delta;
+  addLog(s, ci, cls.columns[ci].name, (delta > 0 ? '+' : '') + delta + ' (Sayac1: ' + (s.scores['c'+ci].counter > 0 ? '+' : '') + s.scores['c'+ci].counter + ')');
   save();
   var el = document.getElementById('cv-' + sid + '-' + ci);
   if (el) {
@@ -714,6 +729,7 @@ function chgDual(sid, ci, isPos) {
   var s = cls.students.find(function(s){ return s.id === sid; }); if (!s) return;
   if (isPos) s.scores['c' + ci].dualPos++;
   else s.scores['c' + ci].dualNeg++;
+  addLog(s, ci, cls.columns[ci].name, isPos ? '+1 (Sayac2)' : '−1 (Sayac2)');
   save();
   var ep = document.getElementById('dp-' + sid + '-' + ci);
   var en = document.getElementById('dn-' + sid + '-' + ci);
@@ -833,6 +849,7 @@ function saveCritScore() {
   if (total > 100) { showToast('Toplam 100 puani gecemez!'); return; }
   s.scores['c' + critTarget.ci].critScores = newScores;
   s.scores['c' + critTarget.ci].manual = total > 0 ? total : null;
+  if (total > 0) addLog(s, critTarget.ci, cls.columns[critTarget.ci].name, 'Kriter: ' + total + '/100');
   save();
   var mvEl = document.getElementById('mv-' + critTarget.sid + '-' + critTarget.ci);
   if (mvEl) mvEl.textContent = total > 0 ? total + '/100' : '—';
@@ -921,6 +938,43 @@ function resetAll() {
 }
 
 // ── EXPORT ──
+function openHist(sid) {
+  var cls = getAct(); if (!cls) return;
+  var s = cls.students.find(function(x){ return x.id === sid; }); if (!s) return;
+  document.getElementById('hist-title').textContent = s.name + ' ' + s.surname;
+  document.getElementById('hist-sub').textContent = 'No: ' + (s.no || '—') + ' · ' + (s.log ? s.log.length : 0) + ' kayıt';
+  var log = s.log || [];
+  if (log.length === 0) {
+    document.getElementById('hist-content').innerHTML = '<div style="text-align:center;padding:24px;color:var(--text2)">Henüz kayıt yok</div>';
+  } else {
+    // Group by date
+    var byDate = {};
+    for (var i = log.length - 1; i >= 0; i--) {
+      var entry = log[i];
+      if (!byDate[entry.date]) byDate[entry.date] = [];
+      byDate[entry.date].push(entry);
+    }
+    var html = '';
+    var dates = Object.keys(byDate);
+    for (var di = 0; di < dates.length; di++) {
+      var date = dates[di];
+      html += '<div style="margin-bottom:12px">';
+      html += '<div style="font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;padding:4px 0;border-bottom:1px solid var(--border)">' + date + '</div>';
+      var entries = byDate[date];
+      for (var ei = 0; ei < entries.length; ei++) {
+        var e = entries[ei];
+        html += '<div style="display:flex;justify-content:space-between;padding:6px 10px;background:var(--bg3);border-radius:8px;margin-bottom:4px">';
+        html += '<span style="font-size:13px;font-weight:700;color:var(--text)">' + e.col + '</span>';
+        html += '<span style="font-size:13px;font-weight:800;color:var(--ac);font-family:monospace">' + e.val + '</span>';
+        html += '</div>';
+      }
+      html += '</div>';
+    }
+    document.getElementById('hist-content').innerHTML = html;
+  }
+  document.getElementById('m-hist').classList.remove('hidden');
+}
+
 function doExport() {
   var cls = getAct(); if (!cls) return;
   var rows = [];
@@ -969,6 +1023,61 @@ function doExport() {
   XLSX.utils.book_append_sheet(wb, ws, cls.name.substring(0, 31));
   XLSX.writeFile(wb, cls.name.replace(/\s+/g, '_') + '_ders' + cls.session + '.xlsx');
   showToast('Excel indirildi');
+}
+
+// ── EXPORT ALL ──
+function exportAll() {
+  if (classes.length === 0) { showToast('Hic sinif yok'); return; }
+  var wb = XLSX.utils.book_new();
+  for (var ci = 0; ci < classes.length; ci++) {
+    var cls = classes[ci];
+    var rows = [];
+    var header = ['No', 'Isim', 'Soyisim'];
+    for (var coli = 0; coli < cls.columns.length; coli++) {
+      var col = cls.columns[coli];
+      if (col.type === 'counter' || col.type === 'counter_manual' || col.type === 'counter_dual_manual') header.push(col.name + ' (S1)');
+      if (col.type === 'dual' || col.type === 'dual_manual' || col.type === 'counter_dual_manual') {
+        header.push(col.name + ' (S2+)'); header.push(col.name + ' (S2-)');
+      }
+      if (hasManual(col.type)) {
+        if (col.criteria && col.criteria.length > 0) {
+          for (var k = 0; k < col.criteria.length; k++) header.push(col.name + ' - ' + col.criteria[k].name);
+        }
+        header.push(col.name + ' (Not)');
+      }
+    }
+    header.push('Ogrenci Notu');
+    rows.push(header);
+    var sorted = cls.students.slice().sort(sortNo);
+    for (var si = 0; si < sorted.length; si++) {
+      var s = sorted[si];
+      var row = [s.no, s.name, s.surname];
+      for (var coli2 = 0; coli2 < cls.columns.length; coli2++) {
+        var col2 = cls.columns[coli2];
+        var sc = s.scores['c' + coli2] || {};
+        if (col2.type === 'counter' || col2.type === 'counter_manual' || col2.type === 'counter_dual_manual') row.push(sc.counter || 0);
+        if (col2.type === 'dual' || col2.type === 'dual_manual' || col2.type === 'counter_dual_manual') {
+          row.push(sc.dualPos || 0); row.push(sc.dualNeg || 0);
+        }
+        if (hasManual(col2.type)) {
+          if (col2.criteria && col2.criteria.length > 0) {
+            var cs = sc.critScores || [];
+            for (var k2 = 0; k2 < col2.criteria.length; k2++) row.push(cs[k2] !== null && cs[k2] !== undefined ? cs[k2] : '');
+          }
+          row.push(sc.manual !== null && sc.manual !== undefined ? sc.manual : '');
+        }
+      }
+      row.push(s.note || '');
+      rows.push(row);
+    }
+    var ws = XLSX.utils.aoa_to_sheet(rows);
+    var sheetName = cls.name.substring(0, 31).replace(/[\[\]\*\/\\?\:]/g, '');
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+  }
+  var today = new Date();
+  var dateStr = today.getDate() + '-' + (today.getMonth()+1) + '-' + today.getFullYear();
+  XLSX.writeFile(wb, 'Tum_Siniflar_' + dateStr + '.xlsx');
+  showToast('Tum siniflar indirildi');
 }
 
 // ── INIT ──
