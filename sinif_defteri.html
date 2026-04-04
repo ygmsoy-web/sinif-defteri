@@ -409,6 +409,15 @@ function colPreview(typeId) {
 
 // ── COLUMN BUILDER ──
 function buildCols() {
+  // Apply template if set and tempCols is empty
+  if (templateCols && tempCols.length === 0) {
+    tempCols = JSON.parse(JSON.stringify(templateCols));
+    document.getElementById('inp-cc').value = String(tempCols.length);
+    document.getElementById('tmpl-bar').classList.remove('hidden');
+    document.getElementById('tmpl-name').textContent = tempCols.length + ' sütun kopyalandı';
+    renderColBuilder();
+    return;
+  }
   var n = parseInt(document.getElementById('inp-cc').value);
   while (tempCols.length < n) tempCols.push({ name: COL_HINTS[tempCols.length] || 'Sütun', type: 'counter', criteria: [] });
   tempCols = tempCols.slice(0, n);
@@ -1107,7 +1116,7 @@ function clearTemplate() {
   templateCols = null;
   tempCols = [];
   document.getElementById('tmpl-bar').classList.add('hidden');
-  document.getElementById('inp-colcount').value = '3';
+  document.getElementById('inp-cc').value = '3';
   buildCols();
 }
 
