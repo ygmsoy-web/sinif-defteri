@@ -301,6 +301,7 @@ applyTheme();
 // ── NAV ──
 function goPage(id) {
   document.querySelectorAll('[id^="pg-"]').forEach(function(el){ el.classList.add('hidden'); });
+  document.querySelectorAll('[id^="m-"]').forEach(function(el){ el.classList.add('hidden'); });
   document.getElementById(id).classList.remove('hidden');
   if (id === 'pg-home') renderHome();
   if (id === 'pg-cls') renderCls();
