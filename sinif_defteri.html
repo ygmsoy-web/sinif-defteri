@@ -646,7 +646,10 @@ function renderCls() {
 
   var thHtml = '<th class="l" style="width:32px">No</th><th class="l" style="min-width:80px">İsim</th>';
   for (var ci = 0; ci < cls.columns.length; ci++) {
-    thHtml += '<th style="min-width:' + colWidth(cls.columns[ci]) + 'px">' + cls.columns[ci].name + '</th>';
+    thHtml += '<th data-ci="' + ci + '" style="min-width:' + colWidth(cls.columns[ci]) + 'px;cursor:grab;user-select:none;position:relative" ' +
+      'ontouchstart="colDragStart(event,' + ci + ')" ontouchend="colDragEnd(event)" ontouchmove="colDragMove(event)">' +
+      '<span style="font-size:9px;color:var(--text2);display:block;margin-bottom:1px">☰</span>' +
+      cls.columns[ci].name + '</th>';
   }
   document.getElementById('t-head').innerHTML = '<tr>' + thHtml + '</tr>';
 
@@ -1056,6 +1059,71 @@ function doExport() {
   XLSX.utils.book_append_sheet(wb, ws, cls.name.substring(0, 31));
   XLSX.writeFile(wb, cls.name.replace(/\s+/g, '_') + '_ders' + cls.session + '.xlsx');
   showToast('Excel indirildi');
+}
+
+// ── COLUMN DRAG ──
+var dragColIdx = null;
+var dragStartX = 0;
+var dragColEls = [];
+
+function colDragStart(e, ci) {
+  dragColIdx = ci;
+  dragStartX = e.touches[0].clientX;
+  var ths = document.getElementById('t-head').querySelectorAll('th[data-ci]');
+  dragColEls = Array.from(ths);
+  dragColEls.forEach(function(th) { th.style.transition = 'background .15s'; });
+  dragColEls[ci] && (dragColEls[ci].style.background = 'var(--ac-dim)');
+  e.preventDefault();
+}
+
+function colDragMove(e) {
+  if (dragColIdx === null) return;
+  var x = e.touches[0].clientX;
+  // Highlight target column
+  var targetEl = document.elementFromPoint(x, e.touches[0].clientY);
+  var targetTh = targetEl && targetEl.closest('th[data-ci]');
+  dragColEls.forEach(function(th) {
+    th.style.background = th === dragColEls[dragColIdx] ? 'var(--ac-dim)' :
+      (th === targetTh ? 'var(--gr-dim)' : '');
+  });
+  e.preventDefault();
+}
+
+function colDragEnd(e) {
+  if (dragColIdx === null) return;
+  var touch = e.changedTouches[0];
+  var targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
+  var targetTh = targetEl && targetEl.closest('th[data-ci]');
+  var targetIdx = targetTh ? parseInt(targetTh.getAttribute('data-ci')) : -1;
+
+  if (targetIdx >= 0 && targetIdx !== dragColIdx) {
+    // Reorder columns in data
+    var cls = getAct();
+    if (cls) {
+      var cols = cls.columns.slice();
+      var moved = cols.splice(dragColIdx, 1)[0];
+      cols.splice(targetIdx, 0, moved);
+      // Reorder scores in all students
+      updAct(function(c) {
+        var newStudents = c.students.map(function(s) {
+          var newScores = {};
+          cols.forEach(function(col, ni) {
+            var oldIdx = c.columns.indexOf(col);
+            newScores['c'+ni] = s.scores['c'+oldIdx] || {counter:0,dualPos:0,dualNeg:0,manual:null,critScores:[]};
+          });
+          return Object.assign({}, s, {scores: newScores});
+        });
+        return Object.assign({}, c, {columns: cols, students: newStudents});
+      });
+      showToast('Sütun taşındı');
+      renderCls();
+    }
+  } else {
+    // Just re-render to reset styles
+    renderCls();
+  }
+  dragColIdx = null;
+  dragColEls = [];
 }
 
 // ── SEARCH ──
