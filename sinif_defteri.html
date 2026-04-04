@@ -190,6 +190,10 @@ tr.od{background:var(--bg)}
     <div style="margin-top:12px;font-size:15px;margin-bottom:16px">Öğrenci eklenmedi</div>
     <button class="btn-p" style="width:auto;padding:11px 24px" onclick="goPage('pg-addstu')">＋ Ekle</button>
   </div>
+  <div style="padding:8px 12px 0">
+    <input id="stu-search" class="fi" placeholder="🔍 Öğrenci ara..." oninput="filterStudents(this.value)"
+      style="width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:10px;padding:9px 13px;font-size:14px;color:var(--text);outline:none;font-family:inherit">
+  </div>
   <div class="twrap" id="twrap">
     <table><thead id="t-head"><tr></tr></thead><tbody id="t-body"></tbody></table>
   </div>
@@ -306,7 +310,7 @@ function goPage(id) {
   document.querySelectorAll('[id^="m-"]').forEach(function(el){ el.classList.add('hidden'); });
   document.getElementById(id).classList.remove('hidden');
   if (id === 'pg-home') renderHome();
-  if (id === 'pg-cls') renderCls();
+  if (id === 'pg-cls') { searchQuery=''; var si=document.getElementById('stu-search'); if(si) si.value=''; renderCls(); }
   if (id === 'pg-addstu') renderStuList();
   if (id === 'pg-addcls') buildCols();
   if (id === 'pg-edit-cols') { if (editCols.length === 0) openEditCols(true); else { var cls2=getAct(); if(cls2) document.getElementById('editcols-sub').textContent=cls2.name; renderEditCols(); } }
@@ -339,6 +343,7 @@ function renderHome() {
       '</div>' +
       '<div style="display:flex;gap:8px;align-items:center">' +
         '<span style="color:var(--ac);font-size:20px">›</span>' +
+        '<button onclick="event.stopPropagation();copyTemplate(' + cls.id + ')" style="background:var(--ac-dim);border:none;border-radius:8px;color:var(--ac);padding:7px 10px;font-size:14px;cursor:pointer" title="Şablon olarak kopyala">📋</button>' +
         '<button class="btn-del" onclick="event.stopPropagation();delCls(' + cls.id + ')">🗑</button>' +
       '</div></div>';
   }).join('');
@@ -1042,6 +1047,68 @@ function doExport() {
   XLSX.utils.book_append_sheet(wb, ws, cls.name.substring(0, 31));
   XLSX.writeFile(wb, cls.name.replace(/\s+/g, '_') + '_ders' + cls.session + '.xlsx');
   showToast('Excel indirildi');
+}
+
+// ── SEARCH ──
+var searchQuery = '';
+
+function filterStudents(q) {
+  searchQuery = q.toLowerCase().trim();
+  renderTableBody();
+}
+
+function renderTableBody() {
+  var cls = getAct(); if (!cls) return;
+  var sorted = cls.students.slice().sort(sortNo);
+  if (searchQuery) {
+    sorted = sorted.filter(function(s) {
+      return (s.name + ' ' + s.surname + ' ' + (s.no||'')).toLowerCase().includes(searchQuery);
+    });
+  }
+  if (sorted.length === 0) {
+    document.getElementById('t-body').innerHTML = '<tr><td colspan="20" style="text-align:center;padding:24px;color:var(--text2)">Öğrenci bulunamadı</td></tr>';
+    return;
+  }
+  var cls2 = getAct();
+  var bodyHtml = '';
+  for (var i = 0; i < sorted.length; i++) {
+    var s = sorted[i];
+    bodyHtml += '<tr class="' + (i % 2 === 0 ? 'ev' : 'od') + '">' +
+      '<td style="font-size:10px;color:var(--text2);font-weight:700">' + (s.no || '') + '</td>' +
+      '<td class="l">' +
+        '<div style="font-size:12px;font-weight:700;cursor:pointer" onclick="openStuNote(\'' + s.id + '\')">'+
+          s.name + (s.note && s.note.trim() ? '<span class="ndot"></span>' : '') +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:4px;margin-top:2px">' +
+          '<span style="font-size:10px;color:var(--text2)">' + s.surname + '</span>' +
+          (s.log && s.log.length > 0 ? '<button onclick="openHist(\'' + s.id + '\')" style="background:var(--ac-dim);border:none;border-radius:5px;color:var(--ac);font-size:9px;font-weight:800;padding:1px 5px;cursor:pointer">📋 ' + s.log.length + '</button>' : '') +
+        '</div>' +
+      '</td>';
+    for (var ci2 = 0; ci2 < cls2.columns.length; ci2++) {
+      bodyHtml += '<td>' + renderCell(s, ci2, cls2.columns[ci2]) + '</td>';
+    }
+    bodyHtml += '</tr>';
+  }
+  document.getElementById('t-body').innerHTML = bodyHtml;
+}
+
+// ── TEMPLATE ──
+var templateCols = null;
+
+function copyTemplate(id) {
+  var cls = classes.find(function(c){ return c.id === id; });
+  if (!cls) return;
+  templateCols = JSON.parse(JSON.stringify(cls.columns));
+  showToast('"' + cls.name + '" şablon olarak kopyalandı');
+  goPage('pg-addcls');
+}
+
+function clearTemplate() {
+  templateCols = null;
+  tempCols = [];
+  document.getElementById('tmpl-bar').classList.add('hidden');
+  document.getElementById('inp-colcount').value = '3';
+  buildCols();
 }
 
 // ── EXPORT ALL ──
