@@ -204,10 +204,12 @@ tr.od{background:var(--bg)}
       <div class="tb-sub" id="editcols-sub"></div>
     </div>
   </div>
-  <div class="pw">
+  <div style="display:flex;gap:8px;padding:10px 16px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:57px;z-index:90">
+    <button onclick="addEditCol()" style="flex:1;padding:11px;border:1.5px solid var(--border);border-radius:var(--r);background:transparent;color:var(--text);font-size:14px;font-weight:700;cursor:pointer">＋ Yeni Sütun</button>
+    <button onclick="saveEditCols()" style="flex:1;padding:11px;border:none;border-radius:var(--r);background:var(--ac);color:#fff;font-size:14px;font-weight:800;cursor:pointer">✓ Kaydet</button>
+  </div>
+  <div class="pw" style="padding-top:12px">
     <div id="editcols-builder"></div>
-    <button class="btn-sec" onclick="addEditCol()">＋ Yeni Sütun Ekle</button>
-    <button class="btn-pri" onclick="saveEditCols()">Değişiklikleri Kaydet</button>
   </div>
 </div>
 
