@@ -264,6 +264,28 @@ tr.od{background:var(--bg)}
 
 <div class="toast hidden" id="toast"></div>
 
+<div id="m-color" class="overlay hidden" onclick="if(event.target===this)closeM('m-color')">
+  <div class="mbox">
+    <div class="mtitle" id="color-title"></div>
+    <div class="msub">Öğrenci için renk seçin</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px">
+      <div onclick="setStudentColor(null)" style="height:54px;border-radius:10px;background:var(--bg3);border:2px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text2);font-weight:700">Yok</div>
+      <div onclick="setStudentColor('green')" style="height:54px;border-radius:10px;background:#d4f7dc;border:2px solid #22c55e;cursor:pointer"></div>
+      <div onclick="setStudentColor('yellow')" style="height:54px;border-radius:10px;background:#fef9c3;border:2px solid #eab308;cursor:pointer"></div>
+      <div onclick="setStudentColor('red')" style="height:54px;border-radius:10px;background:#fee2e2;border:2px solid #ef4444;cursor:pointer"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px;text-align:center">
+      <span style="font-size:10px;color:var(--text2)">Temizle</span>
+      <span style="font-size:10px;color:#16a34a;font-weight:700">İyi</span>
+      <span style="font-size:10px;color:#ca8a04;font-weight:700">Orta</span>
+      <span style="font-size:10px;color:#dc2626;font-weight:700">Dikkat</span>
+    </div>
+    <div class="mbtns" style="margin-top:14px">
+      <button onclick="closeM('m-color')" style="background:var(--bg3);color:var(--text);flex:1;padding:12px;border:none;border-radius:10px;font-size:14px;font-weight:800">İptal</button>
+    </div>
+  </div>
+</div>
+
 <div id="m-hist" class="overlay hidden" onclick="if(event.target===this)closeM('m-hist')">
   <div class="mbox">
     <div class="mtitle" id="hist-title"></div>
@@ -656,14 +678,15 @@ function renderCls() {
   var bodyHtml = '';
   for (var i = 0; i < sorted.length; i++) {
     var s = sorted[i];
-    bodyHtml += '<tr class="' + (i % 2 === 0 ? 'ev' : 'od') + '">' +
+    var rowBg = s.color === 'green' ? 'rgba(34,197,94,.10)' : s.color === 'yellow' ? 'rgba(234,179,8,.12)' : s.color === 'red' ? 'rgba(239,68,68,.10)' : '';
+    bodyHtml += '<tr style="background:' + rowBg + '">' +
       '<td style="font-size:10px;color:var(--text2);font-weight:700">' + (s.no || '') + '</td>' +
       '<td class="l">' +
-        '<div style="font-size:12px;font-weight:700;cursor:pointer" onclick="openStuNote(\'' + s.id + '\')">'+
+        '<div style="font-size:12px;font-weight:700;cursor:pointer" onclick="openStuNote(\'' + s.id + '\')" oncontextmenu="event.preventDefault();openColorPicker(\'' + s.id + '\')">'+
           s.name + (s.note && s.note.trim() ? '<span class="ndot"></span>' : '') +
         '</div>' +
         '<div style="display:flex;align-items:center;gap:4px;margin-top:2px">' +
-          '<span style="font-size:10px;color:var(--text2)">' + s.surname + '</span>' +
+          '<span style="font-size:10px;color:var(--text2);cursor:pointer" onclick="openColorPicker(\'' + s.id + '\')">'+s.surname+'</span>' +
           (s.log && s.log.length > 0 ? '<button onclick="openHist(\'' + s.id + '\')" style="background:var(--ac-dim);border:none;border-radius:5px;color:var(--ac);font-size:9px;font-weight:800;padding:1px 5px;cursor:pointer">📋 ' + s.log.length + '</button>' : '') +
         '</div>' +
       '</td>';
@@ -1062,6 +1085,29 @@ function doExport() {
 }
 
 // ── COLUMN DRAG ──
+var colorTarget = null;
+
+function openColorPicker(sid) {
+  var cls = getAct(); if (!cls) return;
+  var s = cls.students.find(function(x){ return x.id === sid; }); if (!s) return;
+  colorTarget = sid;
+  document.getElementById('color-title').textContent = s.name + ' ' + s.surname;
+  document.getElementById('m-color').classList.remove('hidden');
+}
+
+function setStudentColor(color) {
+  if (!colorTarget) return;
+  updAct(function(c) {
+    return Object.assign({}, c, {
+      students: c.students.map(function(s) {
+        return s.id === colorTarget ? Object.assign({}, s, {color: color}) : s;
+      })
+    });
+  });
+  closeM('m-color');
+  renderTableBody();
+}
+
 var dragColIdx = null;
 var dragStartX = 0;
 var dragColEls = [];
@@ -1150,14 +1196,15 @@ function renderTableBody() {
   var bodyHtml = '';
   for (var i = 0; i < sorted.length; i++) {
     var s = sorted[i];
-    bodyHtml += '<tr class="' + (i % 2 === 0 ? 'ev' : 'od') + '">' +
+    var rowBg = s.color === 'green' ? 'rgba(34,197,94,.10)' : s.color === 'yellow' ? 'rgba(234,179,8,.12)' : s.color === 'red' ? 'rgba(239,68,68,.10)' : '';
+    bodyHtml += '<tr style="background:' + rowBg + '">' +
       '<td style="font-size:10px;color:var(--text2);font-weight:700">' + (s.no || '') + '</td>' +
       '<td class="l">' +
-        '<div style="font-size:12px;font-weight:700;cursor:pointer" onclick="openStuNote(\'' + s.id + '\')">'+
+        '<div style="font-size:12px;font-weight:700;cursor:pointer" onclick="openStuNote(\'' + s.id + '\')" oncontextmenu="event.preventDefault();openColorPicker(\'' + s.id + '\')">'+
           s.name + (s.note && s.note.trim() ? '<span class="ndot"></span>' : '') +
         '</div>' +
         '<div style="display:flex;align-items:center;gap:4px;margin-top:2px">' +
-          '<span style="font-size:10px;color:var(--text2)">' + s.surname + '</span>' +
+          '<span style="font-size:10px;color:var(--text2);cursor:pointer" onclick="openColorPicker(\'' + s.id + '\')">'+s.surname+'</span>' +
           (s.log && s.log.length > 0 ? '<button onclick="openHist(\'' + s.id + '\')" style="background:var(--ac-dim);border:none;border-radius:5px;color:var(--ac);font-size:9px;font-weight:800;padding:1px 5px;cursor:pointer">📋 ' + s.log.length + '</button>' : '') +
         '</div>' +
       '</td>';
