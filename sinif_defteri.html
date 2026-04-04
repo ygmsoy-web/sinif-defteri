@@ -258,6 +258,17 @@ tr.od{background:var(--bg)}
 
 <div class="toast hidden" id="toast"></div>
 
+<div id="m-hist" class="modal hidden" onclick="if(event.target===this)closeM('m-hist')">
+  <div class="mbox">
+    <div class="mtitle" id="hist-title"></div>
+    <div class="msub" id="hist-sub"></div>
+    <div id="hist-content" style="max-height:55vh;overflow-y:auto;margin-top:8px"></div>
+    <div class="mbtns" style="margin-top:12px">
+      <button onclick="closeM('m-hist')" style="background:var(--bg3);color:var(--text);flex:1;padding:12px;border:none;border-radius:10px;font-size:14px;font-weight:800">Kapat</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ── STATE ──
 var classes = JSON.parse(localStorage.getItem('sd_v2') || '[]');
