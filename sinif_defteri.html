@@ -180,6 +180,7 @@ tr.od{background:var(--bg)}
     <button class="tb-btn" style="background:var(--bg3);color:var(--text2);font-size:20px" onclick="doExport()" title="Excel İndir">📤</button>
     <button class="tb-btn" style="background:var(--re-dim);color:var(--re);font-size:20px" onclick="resetAll()" title="Sıfırla">🗑</button>
     <button class="tb-btn" style="background:var(--bg3);color:var(--text2);font-size:20px" onclick="editCols=[];goPage('pg-edit-cols')" title="Sütunları Düzenle">⚙️</button>
+    <button class="tb-btn" style="background:var(--bg3);color:var(--text2);font-size:20px" onclick="openPdfPage()" title="Ders Materyalleri">📄</button>
   </div>
   <div id="cls-note-bar" class="note-bar hidden" onclick="openClsNote()">
     <div class="note-bar-lbl">📝 Sınıf Notu</div>
@@ -264,6 +265,37 @@ tr.od{background:var(--bg)}
 
 <div class="toast hidden" id="toast"></div>
 
+<!-- PDF LIST PAGE -->
+<div id="pg-pdf" class="hidden">
+  <div class="tb">
+    <button class="tb-back" onclick="goPage('pg-cls')">‹</button>
+    <div class="tb-info">
+      <div class="tb-title">📄 Ders Materyalleri</div>
+      <div class="tb-sub" id="pdf-sub"></div>
+    </div>
+  </div>
+  <div class="pw">
+    <label style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border:2px dashed var(--ac);border-radius:12px;background:var(--ac-dim);color:var(--ac);font-size:14px;font-weight:700;cursor:pointer;margin-bottom:16px">
+      ＋ PDF Yükle
+      <input type="file" accept=".pdf" style="display:none" onchange="uploadPdf(event)">
+    </label>
+    <div id="pdf-list"></div>
+  </div>
+</div>
+
+<!-- PDF VIEWER PAGE -->
+<div id="pg-pdfview" class="hidden">
+  <div class="tb">
+    <button class="tb-back" onclick="goPage('pg-pdf')">‹</button>
+    <div class="tb-info">
+      <div class="tb-title" id="pdfview-title"></div>
+    </div>
+  </div>
+  <div style="height:calc(100vh - 57px);overflow:auto">
+    <iframe id="pdf-iframe" style="width:100%;height:100%;border:none"></iframe>
+  </div>
+</div>
+
 <div id="m-color" class="overlay hidden" onclick="if(event.target===this)closeM('m-color')">
   <div class="mbox">
     <div class="mtitle" id="color-title"></div>
@@ -336,6 +368,7 @@ function goPage(id) {
   if (id === 'pg-addstu') renderStuList();
   if (id === 'pg-addcls') buildCols();
   if (id === 'pg-edit-cols') { if (editCols.length === 0) openEditCols(true); else { var cls2=getAct(); if(cls2) document.getElementById('editcols-sub').textContent=cls2.name; renderEditCols(); } }
+  if (id === 'pg-pdf') renderPdfList();
   window.scrollTo(0, 0);
 }
 
@@ -1233,6 +1266,111 @@ function clearTemplate() {
   document.getElementById('tmpl-bar').classList.add('hidden');
   document.getElementById('inp-cc').value = '3';
   buildCols();
+}
+
+// ── PDF MATERIALS ──
+var pdfDb = null;
+
+function openPdfDb(cb) {
+  if (pdfDb) { cb(pdfDb); return; }
+  var req = indexedDB.open('sinif_pdf', 1);
+  req.onupgradeneeded = function(e) {
+    e.target.result.createObjectStore('files', { keyPath: 'id' });
+  };
+  req.onsuccess = function(e) { pdfDb = e.target.result; cb(pdfDb); };
+  req.onerror = function() { showToast('Depolama açılamadı'); };
+}
+
+function openPdfPage() {
+  var cls = getAct(); if (!cls) return;
+  document.getElementById('pdf-sub').textContent = cls.name;
+  goPage('pg-pdf');
+}
+
+function renderPdfList() {
+  var cls = getAct(); if (!cls) return;
+  var listEl = document.getElementById('pdf-list');
+  listEl.innerHTML = '<div style="text-align:center;color:var(--text2);padding:20px">Yükleniyor...</div>';
+  var clsId = String(cls.id);
+  openPdfDb(function(db) {
+    var tx = db.transaction('files', 'readonly');
+    var store = tx.objectStore('files');
+    var req = store.getAll();
+    req.onsuccess = function(e) {
+      var all = e.target.result.filter(function(f) { return f.clsId === clsId; });
+      if (all.length === 0) {
+        listEl.innerHTML = '<div style="text-align:center;color:var(--text2);padding:40px 0"><div style="font-size:40px">📄</div><div style="margin-top:10px">Henüz materyal yok</div></div>';
+        return;
+      }
+      var html = '';
+      all.forEach(function(f) {
+        html += '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">' +
+          '<div style="flex:1;min-width:0;cursor:pointer" onclick="openPdf(\'' + f.id + '\')">' +
+            '<div style="font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📄 ' + f.name + '</div>' +
+            '<div style="font-size:11px;color:var(--text2);margin-top:2px">' + f.date + ' · ' + Math.round(f.size/1024) + ' KB</div>' +
+          '</div>' +
+          '<button onclick="deletePdf(\'' + f.id + '\')" style="background:var(--re-dim);border:none;border-radius:8px;color:var(--re);padding:8px 10px;font-size:14px;cursor:pointer;flex-shrink:0;margin-left:10px">🗑</button>' +
+        '</div>';
+      });
+      listEl.innerHTML = html;
+    };
+  });
+}
+
+function uploadPdf(e) {
+  var file = e.target.files[0]; if (!file) return;
+  var cls = getAct(); if (!cls) return;
+  if (file.size > 20 * 1024 * 1024) { showToast('Dosya 20MB den buyuk olamaz'); return; }
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    var today = new Date();
+    var dateStr = today.getDate() + '/' + (today.getMonth()+1) + '/' + today.getFullYear();
+    var record = {
+      id: String(Date.now()),
+      clsId: String(cls.id),
+      name: file.name,
+      date: dateStr,
+      size: file.size,
+      data: ev.target.result
+    };
+    openPdfDb(function(db) {
+      var tx = db.transaction('files', 'readwrite');
+      tx.objectStore('files').put(record);
+      tx.oncomplete = function() {
+        showToast(file.name + ' yüklendi');
+        renderPdfList();
+      };
+    });
+  };
+  reader.readAsArrayBuffer(file);
+  e.target.value = '';
+}
+
+function openPdf(id) {
+  openPdfDb(function(db) {
+    var tx = db.transaction('files', 'readonly');
+    var req = tx.objectStore('files').get(id);
+    req.onsuccess = function(e) {
+      var f = e.target.result; if (!f) return;
+      var blob = new Blob([f.data], {type: 'application/pdf'});
+      var url = URL.createObjectURL(blob);
+      document.getElementById('pdfview-title').textContent = f.name;
+      document.getElementById('pdf-iframe').src = url;
+      goPage('pg-pdfview');
+    };
+  });
+}
+
+function deletePdf(id) {
+  if (!confirm('Bu materyal silinsin mi?')) return;
+  openPdfDb(function(db) {
+    var tx = db.transaction('files', 'readwrite');
+    tx.objectStore('files').delete(id);
+    tx.oncomplete = function() {
+      showToast('Silindi');
+      renderPdfList();
+    };
+  });
 }
 
 // ── EXPORT ALL ──
