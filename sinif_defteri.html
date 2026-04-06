@@ -283,18 +283,6 @@ tr.od{background:var(--bg)}
   </div>
 </div>
 
-<!-- PDF VIEWER PAGE -->
-<div id="pg-pdfview" class="hidden">
-  <div class="tb">
-    <button class="tb-back" onclick="goPage('pg-pdf')">‹</button>
-    <div class="tb-info">
-      <div class="tb-title" id="pdfview-title"></div>
-    </div>
-  </div>
-  <div style="height:calc(100vh - 57px);overflow:auto">
-    <iframe id="pdf-iframe" style="width:100%;height:100%;border:none"></iframe>
-  </div>
-</div>
 
 <div id="m-color" class="overlay hidden" onclick="if(event.target===this)closeM('m-color')">
   <div class="mbox">
@@ -1354,9 +1342,7 @@ function openPdf(id) {
       var f = e.target.result; if (!f) return;
       var blob = new Blob([f.data], {type: 'application/pdf'});
       var url = URL.createObjectURL(blob);
-      document.getElementById('pdfview-title').textContent = f.name;
-      document.getElementById('pdf-iframe').src = url;
-      goPage('pg-pdfview');
+      window.open(url, '_blank');
     };
   });
 }
